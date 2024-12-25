@@ -57,15 +57,14 @@ async function getDetails(target, subtarget) {
   $('a').each((index, element) => {
     const name = $(element).attr('href');
     if (name && name.startsWith('kernel_')) {
-      const vermagicMatch = name.match(/kernel_\d+\.\d+\.\d+(?:-\d+)?[-~]([a-f0-9]+)(?:-r\d+)?_([a-zA-Z0-9_-]+)\.apk$/);
+      const vermagicMatch = name.match(/kernel_\d+\.\d+\.\d+(?:-\d+)?[-~]([a-f0-9]+)(?:-r\d+)\.apk$/);
       if (vermagicMatch) {
         vermagic = vermagicMatch[1];
-        pkgarch = vermagicMatch[2];
       }
     }
   });
 
-  return { vermagic, pkgarch };
+  return { vermagic };
 }
 
 async function main() {
@@ -76,7 +75,7 @@ async function main() {
     for (const target of targets) {
       const subtargets = await getSubtargets(target);
       for (const subtarget of subtargets) {
-        const { vermagic, pkgarch } = await getDetails(target, subtarget);
+        const { vermagic } = await getDetails(target, subtarget);
 
         if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_TARGETS_TO_BUILD.includes(target))) {
           jobConfig.push({
@@ -84,7 +83,6 @@ async function main() {
             target,
             subtarget,
             vermagic,
-            pkgarch,
           });
         }
       }
