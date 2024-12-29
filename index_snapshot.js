@@ -52,7 +52,6 @@ async function getDetails(target, subtarget) {
   const packagesUrl = `${url}${target}/${subtarget}/packages/`;
   const $ = await fetchHTML(packagesUrl);
   let vermagic = '';
-  let pkgarch = '';
 
   $('a').each((index, element) => {
     const name = $(element).attr('href');
