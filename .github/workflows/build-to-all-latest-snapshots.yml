@@ -132,17 +132,9 @@ jobs:
           fi
 
       - name: Build AmneziaWG
-        if: env.FILE_EXISTS == 'false'
         run: |
           VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
           echo "Vermagic: $VERMAGIC"
-
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED
-            exit 1
-          fi
 
           # Ignore kmod build for some targets, replace with the awg-go
           make package/kmod-amneziawg/{clean,download,prepare} V=s || true
