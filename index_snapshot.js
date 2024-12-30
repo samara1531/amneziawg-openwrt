@@ -79,7 +79,7 @@ async function main() {
       for (const pkgarch of pkgarchs) {
         const { vermagic } = await getDetails(target, subtarget, pkgarch);
 
-        if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_TARGETS_TO_BUILD.includes(target) && SNAPSHOT_PKGARCHS_TO_BUILD.includes(pkgarch))) {
+        if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_TARGETS_TO_BUILD.includes(target))) {
           jobConfig.push({
             tag: version,
             target,
