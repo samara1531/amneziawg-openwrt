@@ -41,7 +41,7 @@ jobs:
         jobs:
          releases:
           runs-on: ubuntu-latest
-           outputs: 
-            uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
-            with:
-             tag_name: ${{ steps.get_release.outputs.release_tag }}
+           steps:
+             uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
+             with:
+              tag_name: ${{ steps.get_release.outputs.release_tag }}
