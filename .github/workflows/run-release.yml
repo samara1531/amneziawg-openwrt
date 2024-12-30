@@ -36,8 +36,12 @@ jobs:
               "name": "'${{ steps.get_release.outputs.release_tag }}'",
               "body": "'"${ART}"'\n\nAutomatically created release for OpenWRT '${{ steps.get_release.outputs.release_tag }}'."
             }'
-    run:
-     if: needs.sync-releases.outputs.release_exists == 'false'
-    uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
-    with:
-      tag_name: ${{ needs.sync-releases.outputs.release_tag }}
+            
+     - name: Create release
+        run: |
+        runs-on: ubuntu-latest
+        needs: sync-releases
+        if: needs.sync-releases.outputs.release_exists == 'false'
+        uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
+        with:
+         tag_name: ${{ needs.sync-releases.outputs.release_tag }}
