@@ -6,7 +6,7 @@ const version = process.argv[2]; // Получение версии OpenWRT из
 
 const SNAPSHOT_TARGETS_TO_BUILD = ['rockchip'];
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['armv8'];
-const SNAPSHOT_PKGARCH_TO_BUILD = ['aarch64_generic'];
+const SNAPSHOT_PKGARCHS_TO_BUILD = ['aarch64_generic'];
 
 if (!version) {
   core.setFailed('Version argument is required');
@@ -74,16 +74,18 @@ async function main() {
 
     for (const target of targets) {
       const subtargets = await getSubtargets(target);
-      for (const subtarget of subtargets) {
-        const { vermagic } = await getDetails(target, subtarget);
+      for (const subtarget of subtargets)
+      const pkgarchs = await getpkgarchs(target);
+      for (const pkgarch of pkgarchs) {
+        const { vermagic } = await getDetails(target, subtarget, pkgarch);
 
-        if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_PKGARCH_TO_BUILD.includes(pkgarch) && SNAPSHOT_TARGETS_TO_BUILD.includes(target))) {
+        if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_TARGETS_TO_BUILD.includes(target) && SNAPSHOT_PKGARCHS_TO_BUILD.includes(pkgarch))) {
           jobConfig.push({
             tag: version,
             target,
             subtarget,
-            vermagic,
             pkgarch,
+            vermagic,
           });
         }
       }
