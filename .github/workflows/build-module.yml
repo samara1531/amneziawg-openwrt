@@ -4,12 +4,7 @@ on:
   push:
     tags:
       - "v*.*.*"
-  workflow_call:
-    inputs:
-      tag_name:
-        required: true
-        type: string
-
+      
 jobs:
   generate-config:
     runs-on: ubuntu-latest
