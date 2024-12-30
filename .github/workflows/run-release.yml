@@ -33,6 +33,5 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{
               "tag_name": "'${{ steps.get_release.outputs.release_tag }}'",
-              "name": "Build amnezia wg for all devices with openwrt '${{ steps.get_release.outputs.release_tag }}'",
-              "body": "'"${ART}"'\n\nAutomatically created release for OpenWRT '${{ steps.get_release.outputs.release_tag }}'."
+              "name": "'${{ steps.get_release.outputs.release_tag }}'",
             }'
