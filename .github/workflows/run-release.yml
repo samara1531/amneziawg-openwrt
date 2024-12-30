@@ -38,8 +38,7 @@ jobs:
                   }'
                   
       - name: run-build
-      jobs:
-      sync-releases:
+        uses: actions/checkout@v4
         runs-on: ubuntu-latest
         uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
         with:
