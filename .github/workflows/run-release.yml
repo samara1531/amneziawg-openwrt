@@ -41,6 +41,6 @@ jobs:
         run: |
         runs-on: ubuntu-latest
         uses: actions/checkout@v4
-        uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
+        run: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
         with:
           tag_name: ${{ steps.get_release.outputs.release_tag }}
