@@ -75,7 +75,7 @@ async function main() {
     for (const target of targets) {
       const subtargets = await getSubtargets(target);
       for (const subtarget of subtargets)
-      const pkgarchs = await getpkgarchs(target);
+      const pkgarchs = await getpkgarchs(subtarget);
       for (const pkgarch of pkgarchs) {
         const { vermagic } = await getDetails(target, subtarget, pkgarch);
 
