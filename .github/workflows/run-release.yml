@@ -38,8 +38,8 @@ jobs:
                   }'
                   
       - name: build-module
-      jobs:
-        sync-releases:
+        jobs:
+        releases:
           runs-on: ubuntu-latest
           uses: actions/checkout@v4
            uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
