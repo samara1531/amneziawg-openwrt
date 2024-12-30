@@ -18,8 +18,8 @@ jobs:
           curl -s https://api.github.com/repos/openwrt/openwrt/releases/latest > latest_release.json
           RELEASE_TAG=$(jq -r .tag_name latest_release.json)
           RELEASE_NAME=$(jq -r .name latest_release.json)
-          echo "{name}={release_tag}" >> $RELEASE_TAG"
-          echo "{name}={release_name}" >> $RELEASE_NAME"
+          echo "::set-output name=release_tag::$RELEASE_TAG"
+          echo "::set-output name=release_name::$RELEASE_NAME"
           
       - name: Check if release exists in your repo
         id: check_release
