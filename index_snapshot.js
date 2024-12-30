@@ -75,9 +75,7 @@ async function main() {
     for (const target of targets) {
       const subtargets = await getSubtargets(target);
       for (const subtarget of subtargets) {
-      const pkgarchs = await getpkgarchs(subtarget);
-      for (const pkgarch of pkgarchs) {
-        const { vermagic } = await getDetails(target, subtarget, pkgarch);
+        const { vermagic } = await getDetails(target, subtarget);
 
         if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget)  && SNAPSHOT_PKGARCHS_TO_BUILD.includes(pkgarch) && SNAPSHOT_TARGETS_TO_BUILD.includes(target))) {
           jobConfig.push({
