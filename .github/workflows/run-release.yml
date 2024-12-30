@@ -38,9 +38,9 @@ jobs:
                   }'
                   
       - name: build-module
-      run: |
+        run: |
       
-        jobs:
+         jobs:
           runs-on: ubuntu-latest
           uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
           with:
