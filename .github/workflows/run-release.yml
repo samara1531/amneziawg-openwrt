@@ -38,4 +38,4 @@ jobs:
                   }'
                   
         run: |
-        uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
+        samara1531/awg-openwrt/.github/workflows/build-module.yml@master
