@@ -37,8 +37,9 @@ jobs:
               "body": "'"${ART}"'\n\nAutomatically created release for OpenWRT '${{ steps.get_release.outputs.release_tag }}'."
                   }'
                   
-      - name: Create release           
+      - name: Create release
         jobs:
+          runs-on: ubuntu-latest
           uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
           with:
             tag_name: ${{ steps.get_release.outputs.release_tag }}
