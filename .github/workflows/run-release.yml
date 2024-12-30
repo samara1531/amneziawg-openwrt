@@ -39,8 +39,9 @@ jobs:
                   
       - name: build-module
         jobs:
-        releases:
+         releases:
           runs-on: ubuntu-latest
-           uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
-           with:
+           outputs: 
+            uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
+            with:
              tag_name: ${{ steps.get_release.outputs.release_tag }}
