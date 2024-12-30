@@ -38,4 +38,6 @@ jobs:
                   }'
                   
         run: |
-        samara1531/awg-openwrt/.github/workflows/build-module.yml@master
+            runs-on: ubuntu-latest
+            needs: sync-releases
+            runs-on: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
