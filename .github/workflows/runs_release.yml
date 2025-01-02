@@ -53,13 +53,13 @@ jobs:
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n --arg tag "${{ steps.get_release.outputs.release_tag }}" \
-                    --arg name "Build amnezia wg for all devices with openwrt ${{ steps.get_release.outputs.release_tag }}" \
+                    --arg name "amneziawg for openwrt ${{ steps.get_release.outputs.release_tag }}" \
                     --arg body "$ART" \
                     '{ tag_name: $tag, name: $name, body: $body }')"
 
   run-build:
     needs: sync-releases
     if: needs.sync-releases.outputs.release_exists == 'false'
+    uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
     with:
       tag_name: ${{ needs.sync-releases.outputs.release_tag }}
-    uses: samara1531/awg-openwrt/.github/workflows/build-module.yml@master
