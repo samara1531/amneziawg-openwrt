@@ -60,6 +60,6 @@ jobs:
   run-build:
     needs: sync-releases
     if: needs.sync-releases.outputs.release_exists == 'false'
-    uses: samara1531/awg-openwrt/.github/workflows/sync_build.yml@master
+    uses: samara1531/awg-openwrt/.github/workflows/auto_build.yml@master
     with:
       tag_name: ${{ needs.sync-releases.outputs.release_tag }}
