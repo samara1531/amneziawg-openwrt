@@ -4,7 +4,7 @@ const core = require('@actions/core');
 
 const version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
 version = versionn;
-const versionn = name.match(/v\([a-zA-Z0-9]);
+const versionn = name.match(/v([a-zA-Z0-9]);
 versionn = versionn[1];
 }
 
