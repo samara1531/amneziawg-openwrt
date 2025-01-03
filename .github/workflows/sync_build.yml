@@ -46,13 +46,13 @@ jobs:
 
   build:
      name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch}} :: ${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}} build"
+     runs-on: ubuntu-latest
      needs: generate-config
      strategy:
       matrix:
-        build_env: ${{ fromJson(needs.generate-config.outputs.job-config) }}
-      fail-fast: false
+       build_env: ${{ fromJson(needs.generate-config.outputs.job-config) }}
 
-    steps:
+     steps:
       - uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
