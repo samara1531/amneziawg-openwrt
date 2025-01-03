@@ -12,6 +12,7 @@ on:
         type: string
 
 jobs:
+  runs-on: ubuntu-latest
   generate-config:
     outputs:
       job-config: ${{ steps.generate-config.outputs.job-config }}
