@@ -26,7 +26,7 @@ jobs:
           node-version: '20.16.0'
 
       - name: Rename file
-        run: rename ${{ inputs.tag_name }} 's/\v/_/' *
+        run: mv ${{ inputs.tag_name }} 's/\v/_/'
           
       - name: Get OpenWRT version from tag
         id: get_version
