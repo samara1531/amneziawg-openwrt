@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const core = require('@actions/core');
 
-version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
+const version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
 
 const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr'];
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
@@ -12,8 +12,6 @@ if (!version) {
   process.exit(1);
 }
 
-const version = rename "s/\v//g" *
-  
 const url = version === 'SNAPSHOT' ? 'https://downloads.openwrt.org/snapshots/targets/' : `https://downloads.openwrt.org/releases/${version}/targets/`;
 
 async function fetchHTML(url) {
