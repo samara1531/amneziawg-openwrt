@@ -13,7 +13,6 @@ on:
 
 jobs:
   generate-config:
-    runs-on: ubuntu-latest
     outputs:
       job-config: ${{ steps.generate-config.outputs.job-config }}
     steps:
@@ -45,12 +44,11 @@ jobs:
           fi
 
   build:
-    name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch}} :: ${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}} build"
-    runs-on: ubuntu-latest
-    needs: generate-config
-    strategy:
+     name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch}} :: ${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}} build"
+     needs: generate-config
+     strategy:
       matrix:
-        build_env: ${{ (needs.generate-config.outputs.job-config) }}
+        build_env: ${{ fromJson(needs.generate-config.outputs.job-config) }}
       fail-fast: false
 
     steps:
