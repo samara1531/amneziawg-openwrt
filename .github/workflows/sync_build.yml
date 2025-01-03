@@ -27,7 +27,7 @@ jobs:
           
       - name: rename
         run: |
-          echo mv ${{ inputs.tag_name }} \/v/*.*.*
+          echo mv ${{ inputs.tag_name }} /\v\/*.*.* ???????
 
       - name: Get OpenWRT version from tag
         id: get_version
