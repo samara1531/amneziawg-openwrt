@@ -1,11 +1,11 @@
 name: Create Release on Tag
 
-      
-  workflow_call:
-     inputs:
-       tag_name:
-         required: true
-         type: string
+push:
+   workflow_call:
+            inputs:
+              tag_name:
+                required: true
+                 type: string
       
 jobs:
   generate-config:
