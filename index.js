@@ -3,9 +3,8 @@ const cheerio = require('cheerio');
 const core = require('@actions/core');
 
 const version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
-with:
- const versionn = name.match(/v([a-zA-Z0-9]);
- versionn = versionn[1];
+const version = name.match(/v\([a-zA-Z0-9]);
+version = versionn[1];
 
 const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr'];
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
