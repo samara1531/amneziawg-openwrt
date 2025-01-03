@@ -28,14 +28,15 @@ jobs:
       - name: Get OpenWRT version from tag
         id: get_version
         run: |
-            echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
+            echo "VERSION=${{ inputs.tag_name }}"
+            echo "VERSION=${VERSION#v}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: npm install
         
       - name: Generate Job Config
         id: generate-config
-        run: node index.js ${{ env.VERSION#v }}
+        run: node index.js ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
