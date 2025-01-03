@@ -28,7 +28,7 @@ jobs:
       - name: Get OpenWRT version from tag
         id: get_version
         run: |
-          echo mv ${{ inputs.tag_name }} \/v/*.*.*
+          echo mv ${{ inputs.tag_name }} /v/*.*.*
           echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
 
       - name: Install dependencies
