@@ -28,7 +28,11 @@ jobs:
       - name: Get OpenWRT version from tag
         id: get_version
         run: |
+          if [ "${{ github.event_name }}" == "workflow_call" ]; then
             echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
+          else
+            echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+          fi
 
 
       - name: Install dependencies
