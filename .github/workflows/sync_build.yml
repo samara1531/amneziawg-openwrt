@@ -1,15 +1,14 @@
 name: Create Release on Tag
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
+  tags:
+    - "*.*.*"
       
   workflow_call:
-    inputs:
-      tag_name:
-        required: true
-        type: string
+     inputs:
+       tag_name:
+         required: true
+         type: string
       
 jobs:
   generate-config:
@@ -30,8 +29,6 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" == "workflow_call" ]; then
             echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
-          else
-            echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
           fi
 
 
