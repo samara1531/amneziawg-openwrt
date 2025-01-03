@@ -12,8 +12,8 @@ on:
         type: string
 
 jobs:
-  runs-on: ubuntu-latest
   generate-config:
+    runs-on: ubuntu-latest
     outputs:
       job-config: ${{ steps.generate-config.outputs.job-config }}
     steps:
