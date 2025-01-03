@@ -25,6 +25,8 @@ jobs:
         with:
           node-version: '20.16.0'
 
+      - name: Install dependencies
+        run: mv install
 
       - name: Rename file
         run: mv ${{ inputs.tag_name }} 's/\v/_/' *
