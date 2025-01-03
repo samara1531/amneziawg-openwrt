@@ -1,12 +1,16 @@
 name: Create Release on Tag
 
-push:
-   workflow_call:
-            inputs:
-              tag_name:
-                required: true
-                 type: string
-      
+on:
+  push:
+    tags:
+    - ${{ inputs.tag_name }}
+    
+  workflow_call:
+    inputs:
+      tag_name:
+        required: true
+        type: string
+
 jobs:
   generate-config:
     runs-on: ubuntu-latest
