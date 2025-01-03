@@ -50,7 +50,7 @@ jobs:
     needs: generate-config
     strategy:
       matrix:
-        build_env: ${{ fromJson(needs.generate-config.outputs.job-config) }}
+        build_env: ${{ (needs.generate-config.outputs.job-config) }}
       fail-fast: false
 
     steps:
