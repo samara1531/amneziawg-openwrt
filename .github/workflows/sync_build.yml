@@ -33,7 +33,8 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-
+          echo "rename 's/\v/_/' *=${{ inputs.tag_name }}" >> $GITHUB_ENV
+        
       - name: Generate Job Config
         id: generate-config
         run: node index.js ${{ env.VERSION }}
