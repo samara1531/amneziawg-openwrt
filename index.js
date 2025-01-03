@@ -12,6 +12,8 @@ if (!version) {
   process.exit(1);
 }
 
+const version = rename "s/\v//g" *
+  
 const url = version === 'SNAPSHOT' ? 'https://downloads.openwrt.org/snapshots/targets/' : `https://downloads.openwrt.org/releases/${version}/targets/`;
 
 async function fetchHTML(url) {
