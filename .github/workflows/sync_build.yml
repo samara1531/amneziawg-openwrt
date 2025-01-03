@@ -28,8 +28,8 @@ jobs:
       - name: Get OpenWRT version from tag
         id: get_version
         run: |
-            echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_EN
-            echo "VERSION=${GITHUB_REF/\/v/inputs.tag_name}" >> $GITHUB_ENV
+            echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
+ 
 
       - name: Install dependencies
         run: npm install
