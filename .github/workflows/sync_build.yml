@@ -23,7 +23,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.16.0'  's/\v/_/' *
+          node-version: '20.16.0'
 
 
       - name: Rename file
