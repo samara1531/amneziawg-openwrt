@@ -62,4 +62,4 @@ jobs:
     if: needs.sync-releases.outputs.release_exists == 'false'
     uses: samara1531/awg-openwrt/.github/workflows/sync_build.yml@master
     with:
-      tag_name: ${{ needs.sync-releases.outputs.release_tag }}
+      tag_name: ${{ 23.05.5 }}
