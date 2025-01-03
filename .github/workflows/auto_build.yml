@@ -1,4 +1,4 @@
-name: Sync Release on Tag
+name: Auto_Build Release on Tag
 
 on:
   push:
