@@ -62,4 +62,4 @@ jobs:
     if: needs.sync-releases.outputs.release_exists == 'false'
     uses: samara1531/awg-openwrt/.github/workflows/sync_build.yml@master
     with:
-      tag_name: ${{ needs.sync-releases.outputs.release_tag }} >> rename 's/\v/_/' *
+      tag_name: ${{ needs.sync-releases.outputs.release_tag >> rename 's/\v/_/' * }}
