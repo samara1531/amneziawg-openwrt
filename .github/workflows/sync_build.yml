@@ -24,14 +24,14 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20.16.0'
-
-      - name: Rename file
-        run: mv ${{ inputs.tag_name }} 's/\v/_/'
           
       - name: Get OpenWRT version from tag
         id: get_version
         run: |
           echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV 
+
+      - name: Rename file
+        run: mv $GITHUB_ENV 's/\v/_/'
 
       - name: Install dependencies
         run: npm install
