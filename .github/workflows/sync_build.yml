@@ -29,8 +29,8 @@ jobs:
       - name: rename
         id: get_version
         run: |
-          echo "VERSION=${{ inputs.tag_name }} >> rename 's/\v/_/' *" >> $GITHUB_ENV      
-
+          echo inputs.tag_name >> rename 's/\v/_/' *
+          echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
 
       - name: Install dependencies
         run: npm install
