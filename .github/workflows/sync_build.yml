@@ -25,18 +25,15 @@ jobs:
         with:
           node-version: '20.16.0'
 
-      - name: Get OpenWRT version from tag
+
+      - name: rename
         id: get_version
         run: |
-            echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
+          echo "VERSION=${{ inputs.tag_name }} >> rename 's/\v/_/' *" >> $GITHUB_ENV      
 
 
       - name: Install dependencies
         run: npm install
-
-      - name: rename
-        run: |
-          echo "rename 's/\v/_/' *=${{ inputs.tag_name }}" >> $GITHUB_ENV
         
       - name: Generate Job Config
         id: generate-config
