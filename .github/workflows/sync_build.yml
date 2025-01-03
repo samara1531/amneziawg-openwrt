@@ -1,7 +1,8 @@
 name: Create Release on Tag
 
 on:
-  tags:
+  push:
+   tags:
     - "*.*.*"
       
   workflow_call:
