@@ -17,7 +17,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up sync_Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.16.0'
@@ -32,7 +32,7 @@ jobs:
         
       - name: Generate Job Config
         id: generate-config
-        run: node index.js ${{ env.VERSION }}
+        run: node sync_index.js ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
