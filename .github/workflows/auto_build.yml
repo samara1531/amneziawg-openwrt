@@ -3,7 +3,7 @@ name: Auto_Build Release on Tag
 on:
   push:
     tags:
-    - inputs.tag_name
+     - inputs.tag_name
     
   workflow_call:
     inputs:
@@ -28,7 +28,11 @@ jobs:
       - name: Get OpenWRT version from tag
         id: get_version
         run: |
-            echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
+          if [ "${{ github.event_name }}" == "push" ]; then
+              echo "VERSION=${GITHUB_REF/refs\/tags\/v/}" >> $GITHUB_ENV
+          else
+              echo "VERSION=${{ inputs.tag_name }}" >> $GITHUB_ENV
+          fi
  
 
       - name: Install dependencies
