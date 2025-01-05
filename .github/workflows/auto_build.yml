@@ -36,7 +36,7 @@ jobs:
         
       - name: Generate Job Config
         id: generate-config
-        run: node index.js ${{ env.VERSION }}
+        run: node sync_index.js ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
