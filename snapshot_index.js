@@ -51,25 +51,27 @@ async function getSubtargets(target) {
 async function getDetails(target, subtarget) {
   const profilesUrl = `${url}${target}/${subtarget}/profiles.json`;
   let vermagic = '';
-  let pkgarch = '';
 
+  // Получаем vermagic из списка пакетов
   const packagesUrl = `${url}${target}/${subtarget}/packages/`;
   const $ = await fetchHTML(packagesUrl);
   $('a').each((index, element) => {
     const name = $(element).attr('href');
     if (name && name.startsWith('kernel_')) {
-      const vermagicMatch = name.match(/kernel_\d+\.\d+\.\d+(?:-\d+)?[-~]([a-f0-9]+)(?:-r\d+)?_([a-zA-Z0-9_-]+)\.ipk$/);
+      const vermagicMatch = name.match(/kernel_\d+\.\d+\.\d+(?:-\d+)?[-~]([a-f0-9]+)(?:-r\d+)?\.ipk$/);
       if (vermagicMatch) {
-        vermagic = vermagicMatch[1];
+        vermagic = vermagicMatch[1];  // Извлекаем только vermagic
       }
     }
   });
 
+  // Получаем arch_packages из profiles.json
+  let pkgarch = '';
   try {
     const response = await axios.get(profilesUrl);
     const data = response.data;
     if (data && data['arch_packages']) {
-      pkgarch = data['arch_packages'];  // Динамическое значение из JSON
+      pkgarch = data['arch_packages'];
     }
   } catch (error) {
     console.error(`Error fetching profiles.json for ${target}/${subtarget}: ${error}`);
