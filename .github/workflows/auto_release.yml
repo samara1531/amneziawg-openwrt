@@ -39,14 +39,14 @@ jobs:
           \`\`\`
               A M N E Z I A   W I R E G U A R D
           -----------------------------------------------------
-            wrt ${{ steps.get_release.outputs.release_tag }}
+            openwrt ${{ steps.get_release.outputs.release_tag }}
           -----------------------------------------------------
           \`\`\`"
           curl -X POST https://api.github.com/repos/samara1531/awg-openwrt/releases \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n --arg tag "${{ steps.get_release.outputs.release_tag }}" \
-                    --arg name "amneziawg for wrt ${{ steps.get_release.outputs.release_tag }}" \
+                    --arg name "amneziawg for openwrt ${{ steps.get_release.outputs.release_tag }}" \
                     --arg body "$ART" \
                     '{ tag_name: $tag, name: $name, body: $body }')"
   run-build:
