@@ -2,7 +2,7 @@ name: Auto_Sync OpenWRT Releases
 
 on:
   schedule:
-    - cron: '30 23 */8 * *' # Проверка новых релизов раз в три дня
+    - cron: '30 23 */8 * *' # Проверка новых релизов
   workflow_dispatch: # Возможность вручную запустить Action
 
 jobs:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       release_exists: ${{ steps.check_release.outputs.release_exists }}
-      release_tag: ${{ steps.get_release.outputs.release_tag }} 
+      release_tag: ${{ steps.get_release.outputs.release_tag }}
     steps:
       - name: Checkout your repo
         uses: actions/checkout@v4
@@ -18,45 +18,37 @@ jobs:
       - name: Get the latest release from OpenWRT
         id: get_release
         run: |
-          curl -s https://api.github.com/repos/openwrt/openwrt/releases/latest > latest_release.json
-          RELEASE_TAG=$(jq -r .tag_name latest_release.json)
-          RELEASE_NAME=$(jq -r .name latest_release.json)
+          RELEASE_TAG=$(curl -s https://api.github.com/repos/openwrt/openwrt/tags | jq -r '.[0].name')
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_ENV
           echo "::set-output name=release_tag::$RELEASE_TAG"
-          echo "::set-output name=release_name::$RELEASE_NAME"
-
       - name: Check if release exists in your repo
         id: check_release
         run: |
           RELEASE_EXISTS=$(curl -s https://api.github.com/repos/samara1531/awg-openwrt/releases/tags/${{ steps.get_release.outputs.release_tag }} | jq -r .tag_name)
           if [ "$RELEASE_EXISTS" == "null" ]; then
+            echo "release_exists=false" >> $GITHUB_ENV
             echo "::set-output name=release_exists::false"
           else
+            echo "release_exists=true" >> $GITHUB_ENV
             echo "::set-output name=release_exists::true"
           fi
-          
       - name: Create release in your repo
         if: steps.check_release.outputs.release_exists == 'false'
         run: |
           ART="
           \`\`\`
-            _______                     ________        __
-           |       |.-----.-----.-----.|  |  |  |.----.|  |_
-           |   -   ||  _  |  -__|     ||  |  |  ||   _||   _|
-           |_______||   __|_____|__|__||________||__|  |____|
-                    |__| A M N E Z I A   W I R E G U A R D
+              A M N E Z I A   W I R E G U A R D
           -----------------------------------------------------
-          OpenWrt ${{ steps.get_release.outputs.release_tag }}
+            wrt ${{ steps.get_release.outputs.release_tag }}
           -----------------------------------------------------
           \`\`\`"
-
           curl -X POST https://api.github.com/repos/samara1531/awg-openwrt/releases \
             -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n --arg tag "${{ steps.get_release.outputs.release_tag }}" \
-                    --arg name "amneziawg for openwrt ${{ steps.get_release.outputs.release_tag }}" \
+                    --arg name "amneziawg for wrt ${{ steps.get_release.outputs.release_tag }}" \
                     --arg body "$ART" \
                     '{ tag_name: $tag, name: $name, body: $body }')"
-
   run-build:
     needs: sync-releases
     if: needs.sync-releases.outputs.release_exists == 'false'
