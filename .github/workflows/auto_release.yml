@@ -2,7 +2,7 @@ name: Auto_Sync OpenWRT Releases
 
 on:
   schedule:
-    - cron: '0 0 */3 * *' # Проверка новых релизов раз в три дня
+    - cron: '30 23 */8 * *' # Проверка новых релизов раз в три дня
   workflow_dispatch: # Возможность вручную запустить Action
 
 jobs:
