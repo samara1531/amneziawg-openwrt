@@ -4,7 +4,7 @@ const core = require('@actions/core');
 
 const version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
 
-const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr'];
+const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr', 'rockchip]';
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
 
 if (!version) {
@@ -49,21 +49,31 @@ async function getSubtargets(target) {
 }
 
 async function getDetails(target, subtarget) {
-  const packagesUrl = `${url}${target}/${subtarget}/packages/`;
-  const $ = await fetchHTML(packagesUrl);
+  const profilesUrl = `${url}${target}/${subtarget}/profiles.json`;
   let vermagic = '';
   let pkgarch = '';
 
+  const packagesUrl = `${url}${target}/${subtarget}/packages/`;
+  const $ = await fetchHTML(packagesUrl);
   $('a').each((index, element) => {
     const name = $(element).attr('href');
     if (name && name.startsWith('kernel_')) {
       const vermagicMatch = name.match(/kernel_\d+\.\d+\.\d+(?:-\d+)?[-~]([a-f0-9]+)(?:-r\d+)?_([a-zA-Z0-9_-]+)\.ipk$/);
       if (vermagicMatch) {
         vermagic = vermagicMatch[1];
-        pkgarch = vermagicMatch[2];
       }
     }
   });
+
+  try {
+    const response = await axios.get(profilesUrl);
+    const data = response.data;
+    if (data && data['arch_packages']) {
+      pkgarch = data['arch_packages'];  // Динамическое значение из JSON
+    }
+  } catch (error) {
+    console.error(`Error fetching profiles.json for ${target}/${subtarget}: ${error}`);
+  }
 
   return { vermagic, pkgarch };
 }
