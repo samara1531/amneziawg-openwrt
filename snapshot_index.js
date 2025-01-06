@@ -58,7 +58,7 @@ async function getDetails(target, subtarget) {
   $('a').each((index, element) => {
     const name = $(element).attr('href');
     if (name && name.startsWith('kernel_')) {
-      const vermagicMatch = name.match(/kernel_\d+\.\d+\.\d+(?:-\d+)?[-~]([a-f0-9]+)(?:-r\d+)?\.ipk$/);
+      const vermagicMatch = name.match(/kernel-\d+\.\d+\.\d+~([a-f0-9]+)(?:-r\d+)?\.apk$/);
       if (vermagicMatch) {
         vermagic = vermagicMatch[1];  // Извлекаем только vermagic
       }
