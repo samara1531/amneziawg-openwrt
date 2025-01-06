@@ -6,7 +6,9 @@ env:
 on:
   push:
     tags:
-      - "*.*"
+      - "SNAPSHOT"
+  schedule:
+    - cron: '0 */4 * * *'
   workflow_dispatch:
 
 jobs:
@@ -28,7 +30,7 @@ jobs:
 
       - name: Generate Job Config
         id: generate-config
-        run: node index_snapshot.js SNAPSHOT
+        run: node snapshot_index.js SNAPSHOT
 
   build:
     name: "${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch}} :: ${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}} build"
