@@ -1,4 +1,4 @@
-AmneziaWG for OpenWRT, Forked [Slava-Shchipunov](https://github.com/Slava-Shchipunov/awg-openwrt)
+AmneziaWG for OpenWRT, forked from [Slava-Shchipunov](https://github.com/Slava-Shchipunov/awg-openwrt)
 --------------------------
 AmneziaWG for [ImmortalWrt](https://github.com/samara15321/awg-immortalwrt/releases)
 --------------------------
