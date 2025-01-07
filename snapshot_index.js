@@ -7,12 +7,12 @@ const version = process.argv[2]; // Получение версии OpenWRT из
 const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr', 'rockchip'];
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
 
-if (!version) {
-  core.setFailed('Version argument is required');
+if (!version || version !== 'SNAPSHOT') {
+  core.setFailed('Only "SNAPSHOT" version is supported');
   process.exit(1);
 }
 
-const url = version === 'SNAPSHOT' ? 'https://downloads.openwrt.org/snapshots/targets/' : `https://downloads.openwrt.org/releases/${version}/targets/`;
+const url = 'https://downloads.openwrt.org/snapshots/targets/';
 
 async function fetchHTML(url) {
   try {
@@ -89,7 +89,7 @@ async function main() {
       for (const subtarget of subtargets) {
         const { vermagic, pkgarch } = await getDetails(target, subtarget);
 
-        if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_TARGETS_TO_BUILD.includes(target))) {
+        if (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_TARGETS_TO_BUILD.includes(target)) {
           jobConfig.push({
             tag: version,
             target,
