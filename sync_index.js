@@ -4,22 +4,15 @@ const core = require('@actions/core');
 
 let version = process.argv[2];
 
-if (version) {
-    version = version.slice(1);
-    console.log(`Версия без первого символа: ${version}`);
-} else {
-    console.log('Версия не была передана');
-}
-
-const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr'];
-const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
-
 if (!version) {
   core.setFailed('Version argument is required');
   process.exit(1);
 }
 
-const url = version === 'SNAPSHOT' ? 'https://downloads.openwrt.org/snapshots/targets/' : `https://downloads.openwrt.org/releases/${version}/targets/`;
+version = version.slice(1); // Удаление первого символа версии
+console.log(`Версия без первого символа: ${version}`);
+
+const url = `https://downloads.openwrt.org/releases/${version}/targets/`;
 
 async function fetchHTML(url) {
   try {
@@ -84,16 +77,13 @@ async function main() {
       const subtargets = await getSubtargets(target);
       for (const subtarget of subtargets) {
         const { vermagic, pkgarch } = await getDetails(target, subtarget);
-
-        if (version !== 'SNAPSHOT' || (SNAPSHOT_SUBTARGETS_TO_BUILD.includes(subtarget) && SNAPSHOT_TARGETS_TO_BUILD.includes(target))) {
-          jobConfig.push({
-            tag: version,
-            target,
-            subtarget,
-            vermagic,
-            pkgarch,
-          });
-        }
+        jobConfig.push({
+          tag: version,
+          target,
+          subtarget,
+          vermagic,
+          pkgarch,
+        });
       }
     }
 
