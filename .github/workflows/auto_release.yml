@@ -39,7 +39,7 @@ jobs:
           \`\`\`
                    A M N E Z I A   W I R E G U A R D
           -----------------------------------------------------
-                   openwrt ${{ steps.get_release.outputs.release_tag }}
+                   OpenWrt ${{ steps.get_release.outputs.release_tag }}
           -----------------------------------------------------
           \`\`\`"
           curl -X POST https://api.github.com/repos/samara1531/awg-openwrt/releases \
