@@ -42,6 +42,9 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Debug output
+        run: echo "${{ needs.generate-config.outputs.job-config }}"
+        
       - name: Check if release file exists
         id: check_release
         run: |
@@ -144,9 +147,11 @@ jobs:
       - name: Prepare artifacts
         if: env.FILE_EXISTS == 'false'
         run: |
-          tag_name=${{  github.ref_name }}
+          tag_name=${{ github.ref_name }}
+          postfix="${{ matrix.build_env.tag }}_${{ matrix.build_env.vermagic }}_${{ matrix.build_env.pkgarch }}_${{ matrix.build_env.target }}_${{ matrix.build_env.subtarget }}"
+          echo "Using postfix: $postfix"
+
           mkdir -p awgrelease
-          postfix="${{ matrix.build_env.tag }}_${{ matrix.build_env.vermagic }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools-*.apk awgrelease/amneziawg-tools_${postfix}.apk
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-app-amneziawg-*.apk awgrelease/luci-app-amneziawg_${postfix}.apk
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg-*.apk awgrelease/kmod-amneziawg_${postfix}.apk
