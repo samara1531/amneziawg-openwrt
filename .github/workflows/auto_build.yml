@@ -1,4 +1,4 @@
-name: Auto_Build Release on Tag
+name: Auto_Build Release
 
 on:
   workflow_call:
