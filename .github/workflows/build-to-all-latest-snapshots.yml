@@ -44,6 +44,16 @@ jobs:
     steps:
       - name: Debug output
         run: echo "${{ needs.generate-config.outputs.job-config }}"
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.npm
+            ~/.cache/pip
+            build_dir/target-*/linux-*/linux-*
+          key: ${{ runner.os }}-openwrt-cache-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch }}-${{ matrix.build_env.target }}-${{ matrix.build_env.subtarget }}
+
         
       - name: Check if release file exists
         id: check_release
