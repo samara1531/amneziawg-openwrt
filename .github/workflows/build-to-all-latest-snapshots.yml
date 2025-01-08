@@ -17,11 +17,16 @@ jobs:
     outputs:
       job-config: ${{ steps.generate-config.outputs.job-config }}
     steps:
+      - name: Install Python3 elftools module
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pyelftools
+          
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: '20.16.0'
 
