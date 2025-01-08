@@ -16,12 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       job-config: ${{ steps.generate-config.outputs.job-config }}
-    steps:
-      - name: Install Python3 elftools module
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install pyelftools
-          
+    steps:            
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -93,6 +88,11 @@ jobs:
       - name: Checkout snapshot commit in openwrt repo
         if: env.FILE_EXISTS == 'false'
         run: git checkout ${{ env.SNAPSHOT_COMMIT_SHA}}
+
+      - name: Install Python3 elftools module
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pyelftools
 
       - name: Building kernel and tools
         if: env.FILE_EXISTS == 'false'
