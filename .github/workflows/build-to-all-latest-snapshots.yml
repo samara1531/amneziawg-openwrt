@@ -82,11 +82,6 @@ jobs:
         with:
           repository: openwrt/openwrt
           fetch-depth: 0
-
-      - name: Install Python3 elftools module
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install pyelftools
           
       - name: Checkout snapshot commit in openwrt repo
         if: env.FILE_EXISTS == 'false'
