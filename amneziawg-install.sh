@@ -5,92 +5,62 @@
 #Репозиторий OpenWRT должен быть доступен для установки зависимостей пакета kmod-amneziawg
 check_repo() {
     printf "\033[32;1mChecking OpenWrt repo availability...\033[0m\n"
-    opkg update | grep -q "Failed to download" && printf "\033[32;1mopkg failed. Check internet or date. Command for force ntp sync: ntpd -p ptbtime1.ptb.de\033[0m\n" && exit 1
+    opkg update | grep -q "Failed to download" && printf "\033[31;1mopkg failed. Check internet or date. Command for force ntp sync: ntpd -p ptbtime1.ptb.de\033[0m\n" && exit 1
 }
 
 install_awg_packages() {
-    # Получение pkgarch с наибольшим приоритетом
     PKGARCH=$(opkg print-architecture | awk 'BEGIN {max=0} {if ($3 > max) {max = $3; arch = $2}} END {print arch}')
-
     TARGET=$(ubus call system board | jsonfilter -e '@.release.target' | cut -d '/' -f 1)
     SUBTARGET=$(ubus call system board | jsonfilter -e '@.release.target' | cut -d '/' -f 2)
     VERSION=$(ubus call system board | jsonfilter -e '@.release.version')
     PKGPOSTFIX="_v${VERSION}_${PKGARCH}_${TARGET}_${SUBTARGET}.ipk"
-    BASE_URL="https://github.com/samara1531/awg-openwrt/releases/download/"
+
+    BASE_URLS=(
+        "https://github.com/Slava-Shchipunov/awg-openwrt/releases/download/"
+        "https://github.com/samara1531/awg-openwrt/releases/download/"
+    )
 
     AWG_DIR="/tmp/amneziawg"
     mkdir -p "$AWG_DIR"
-    
-    if opkg list-installed | grep -q kmod-amneziawg; then
+
+    download_and_install() {
+        local package_name=$1
+        local filename=$2
+
+        success=0
+        for base_url in "${BASE_URLS[@]}"; do
+            DOWNLOAD_URL="${base_url}v${VERSION}/${filename}"
+            wget -O "$AWG_DIR/$filename" "$DOWNLOAD_URL" && success=1 && break
+        done
+
+        if [ $success -eq 1 ]; then
+            echo "$filename downloaded successfully"
+            opkg install "$AWG_DIR/$filename" || {
+                echo "Error installing $package_name. Please, install it manually and run the script again"
+                exit 1
+            }
+        else
+            echo "Error downloading $filename from all sources. Please, install $package_name manually and run the script again"
+            exit 1
+        fi
+    }
+
+    if ! opkg list-installed | grep -q kmod-amneziawg; then
+        download_and_install "kmod-amneziawg" "kmod-amneziawg${PKGPOSTFIX}"
+    else
         echo "kmod-amneziawg already installed"
-    else
-        KMOD_AMNEZIAWG_FILENAME="kmod-amneziawg${PKGPOSTFIX}"
-        DOWNLOAD_URL="${BASE_URL}v${VERSION}/${KMOD_AMNEZIAWG_FILENAME}"
-        wget -O "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
-
-        if [ $? -eq 0 ]; then
-            echo "kmod-amneziawg file downloaded successfully"
-        else
-            echo "Error downloading kmod-amneziawg. Please, install kmod-amneziawg manually and run the script again"
-            exit 1
-        fi
-        
-        opkg install "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME"
-
-        if [ $? -eq 0 ]; then
-            echo "kmod-amneziawg file downloaded successfully"
-        else
-            echo "Error installing kmod-amneziawg. Please, install kmod-amneziawg manually and run the script again"
-            exit 1
-        fi
     fi
 
-    if opkg list-installed | grep -q amneziawg-tools; then
+    if ! opkg list-installed | grep -q amneziawg-tools; then
+        download_and_install "amneziawg-tools" "amneziawg-tools${PKGPOSTFIX}"
+    else
         echo "amneziawg-tools already installed"
-    else
-        AMNEZIAWG_TOOLS_FILENAME="amneziawg-tools${PKGPOSTFIX}"
-        DOWNLOAD_URL="${BASE_URL}v${VERSION}/${AMNEZIAWG_TOOLS_FILENAME}"
-        wget -O "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME" "$DOWNLOAD_URL"
-
-        if [ $? -eq 0 ]; then
-            echo "amneziawg-tools file downloaded successfully"
-        else
-            echo "Error downloading amneziawg-tools. Please, install amneziawg-tools manually and run the script again"
-            exit 1
-        fi
-
-        opkg install "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME"
-
-        if [ $? -eq 0 ]; then
-            echo "amneziawg-tools file downloaded successfully"
-        else
-            echo "Error installing amneziawg-tools. Please, install amneziawg-tools manually and run the script again"
-            exit 1
-        fi
     fi
-    
-    if opkg list-installed | grep -q luci-app-amneziawg; then
-        echo "luci-app-amneziawg already installed"
+
+    if ! opkg list-installed | grep -q luci-app-amneziawg; then
+        download_and_install "luci-app-amneziawg" "luci-app-amneziawg${PKGPOSTFIX}"
     else
-        LUCI_APP_AMNEZIAWG_FILENAME="luci-app-amneziawg${PKGPOSTFIX}"
-        DOWNLOAD_URL="${BASE_URL}v${VERSION}/${LUCI_APP_AMNEZIAWG_FILENAME}"
-        wget -O "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
-
-        if [ $? -eq 0 ]; then
-            echo "luci-app-amneziawg file downloaded successfully"
-        else
-            echo "Error downloading luci-app-amneziawg. Please, install luci-app-amneziawg manually and run the script again"
-            exit 1
-        fi
-
-        opkg install "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME"
-
-        if [ $? -eq 0 ]; then
-            echo "luci-app-amneziawg file downloaded successfully"
-        else
-            echo "Error installing luci-app-amneziawg. Please, install luci-app-amneziawg manually and run the script again"
-            exit 1
-        fi
+        echo "luci-app-amneziawg already installed"
     fi
 
     rm -rf "$AWG_DIR"
