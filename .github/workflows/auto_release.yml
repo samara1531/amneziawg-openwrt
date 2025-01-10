@@ -30,7 +30,11 @@ jobs:
           else
             echo "release_exists=true" >> $GITHUB_ENV
           fi
-
+          
+      - name: Wait for 5 hours if release exists
+        if: env.release_exists == 'false'
+        run: sleep $((5 * 60 * 60))
+          
       - name: Create release in your repo
         if: env.release_exists == 'false'
         run: |
