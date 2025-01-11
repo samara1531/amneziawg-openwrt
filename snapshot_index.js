@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const core = require('@actions/core');
 
-const version = process.argv[2];
+const version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
 
 const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr', 'rockchip'];
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
@@ -67,11 +67,10 @@ async function getDetails(target, subtarget) {
       }
     });
 
-  // Получаем HTML страницы с kmods
-    const $ = await fetchHTML(kmodsUrl);
+    // Извлечение pkgarch
+    const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
+    const kmodsPage = await fetchHTML(kmodsUrl);
     const kmodsLinks = [];
-
-    // Собираем все ссылки, соответствующие шаблону 6.6.54-1-45f373ce241c6113ae3c7cbbdc506b11
     $('a').each((index, element) => {
       const name = $(element).attr('href');
       console.log('Found kmod link:', name);  // Логируем все ссылки
@@ -82,9 +81,8 @@ async function getDetails(target, subtarget) {
 
     console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
 
-    if (kmodsLinks.length >= 6) {
-      // Берем седьмую ссылку из найденных
-      const seventhKmodLink = kmodsLinks[1]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
+    if (kmodsLinks.length >= 4) {
+      const seventhKmodLink = kmodsLinks[2]; // Берем седьмую ссылку
       const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`; // Переход по седьмой ссылке и получаем index.json
 
       console.log(`Fetching index.json from: ${seventhKmodUrl}`); // Логируем URL для index.json
