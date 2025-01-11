@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const core = require('@actions/core');
 
-const version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
+const version = process.argv[2];
 
 const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr', 'rockchip'];
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
@@ -67,12 +67,14 @@ async function getDetails(target, subtarget) {
       }
     });
 
-    // Извлечение pkgarch
+    // Получаем HTML страницы с kmods
     const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
-    const kmodsPage = await fetchHTML(kmodsUrl);
+    const $kmods = await fetchHTML(kmodsUrl);
     const kmodsLinks = [];
-    $('a').each((index, element) => {
-      const name = $(element).attr('href');
+
+    // Собираем все ссылки, соответствующие шаблону 6.6.54-1-45f373ce241c6113ae3c7cbbdc506b11
+    $kmods('a').each((index, element) => {
+      const name = $kmods(element).attr('href');
       console.log('Found kmod link:', name);  // Логируем все ссылки
       if (name && name.match(/^\d+\.\d+\.\d+-\d+-[a-f0-9]{32}\/$/)) {
         kmodsLinks.push(name);
@@ -81,21 +83,32 @@ async function getDetails(target, subtarget) {
 
     console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
 
-    if (kmodsLinks.length >= 4) {
-      const seventhKmodLink = kmodsLinks[2]; // Берем седьмую ссылку
-      const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`; // Переход по седьмой ссылке и получаем index.json
+    if (kmodsLinks.length >= 6) {
+      // Берем шестую ссылку из найденных
+      const sixthKmodLink = kmodsLinks[5]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
+      const sixthKmodUrl = `${kmodsUrl}${sixthKmodLink}index.json`; // Переход по шестой ссылке и получаем index.json
 
-      console.log(`Fetching index.json from: ${seventhKmodUrl}`); // Логируем URL для index.json
+      console.log(`Fetching index.json from: ${sixthKmodUrl}`); // Логируем URL для index.json
 
       // Загружаем index.json для получения pkgarch
-      const response = await axios.get(seventhKmodUrl);
-      const data = response.data;
-      if (data && data.architecture) {
-        pkgarch = data.architecture;
-        console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
+      const response = await axios.get(sixthKmodUrl);
+      
+      if (response.status === 200) {
+        const data = response.data;
+        console.log('Received data from index.json:', data);  // Логируем полученные данные
+
+        // Проверяем, что в JSON есть нужные данные
+        if (data && data.architecture) {
+          pkgarch = data.architecture;
+          console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
+        } else {
+          console.error('No architecture found in index.json');
+        }
+      } else {
+        console.error('Failed to fetch index.json. Status code:', response.status);
       }
     } else {
-      console.log('Not enough kmod links found to select the seventh one.');
+      console.log('Not enough kmod links found to select the sixth one.');
     }
 
   } catch (error) {
