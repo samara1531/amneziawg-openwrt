@@ -84,7 +84,7 @@ async function getDetails(target, subtarget) {
     console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
 
     if (kmodsLinks.length >= 0) {
-      // Берем шестую ссылку из найденных
+      // Берем 1 ссылку из найденных
       const sixthKmodLink = kmodsLinks[0]; // Индексация с 0, поэтому 1 элемент — это kmodsLinks[0]
       const sixthKmodUrl = `${kmodsUrl}${sixthKmodLink}index.json`; // Переход по ссылке и получаем index.json
 
