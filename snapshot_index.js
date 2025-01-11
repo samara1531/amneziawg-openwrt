@@ -54,24 +54,27 @@ async function getDetails(target, subtarget) {
   let pkgarch = '';
 
   try {
-    // Получаем список файлов kmods
+    // Получаем HTML страницы с kmods
     const $ = await fetchHTML(kmodsUrl);
     const kmodsLinks = [];
+
+    // Собираем все ссылки на страницы с kmods
     $('a').each((index, element) => {
       const name = $(element).attr('href');
-      if (name && name.match(/^\d+\.\d+\.\d+-\d+-[a-f0-9]{10,}\.tar\.xz$/)) {
+      console.log('Found kmod link:', name);  // Логируем все ссылки
+      if (name && name.match(/^([a-f0-9]{32})\/$/)) {
         kmodsLinks.push(name);
       }
     });
 
-    console.log('Kmods links found:', kmodsLinks); // Логирование ссылок
+    console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
 
     if (kmodsLinks.length > 0) {
-      // Берем первую ссылку, которая соответствует шаблону
+      // Берем первую ссылку из найденных
       const firstKmodLink = kmodsLinks[0];
-      const firstKmodUrl = `${kmodsUrl}${firstKmodLink}/index.json`;
+      const firstKmodUrl = `${kmodsUrl}${firstKmodLink}index.json`; // Переход по первой ссылке и получаем index.json
 
-      console.log(`Fetching index.json from: ${firstKmodUrl}`); // Логирование URL для index.json
+      console.log(`Fetching index.json from: ${firstKmodUrl}`); // Логируем URL для index.json
 
       // Загружаем index.json для получения pkgarch
       const response = await axios.get(firstKmodUrl);
@@ -118,19 +121,14 @@ async function main() {
             tag: version,
             target,
             subtarget,
-            vermagic,   // Добавляем vermagic в конфигурацию
-            pkgarch,    // Добавляем pkgarch в конфигурацию
+            vermagic,
+            pkgarch,
           });
         }
       }
     }
 
-    // Логируем конфигурацию перед передачей
-    console.log('Job config:', jobConfig);
-
-    // Передаем job-config в следующий шаг
     core.setOutput('job-config', JSON.stringify(jobConfig));
-
   } catch (error) {
     core.setFailed(error.message);
   }
