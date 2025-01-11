@@ -2,7 +2,7 @@ const axios = require('axios');
 const cheerio = require('cheerio');
 const core = require('@actions/core');
 
-const version = process.argv[2]; // Получение версии OpenWRT из аргумента командной строки
+const version = process.argv[2];
 
 const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr', 'rockchip'];
 const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
@@ -49,24 +49,25 @@ async function getSubtargets(target) {
 }
 
 async function getDetails(target, subtarget) {
-  const packagesUrl = `${url}${target}/${subtarget}/packages/`;
   let vermagic = '';
   let pkgarch = '';
 
   try {
+    // Извлечение vermagic
+    const packagesUrl = `${url}${target}/${subtarget}/packages/`;
     const $ = await fetchHTML(packagesUrl);
     $('a').each((index, element) => {
       const name = $(element).attr('href');
       if (name && name.startsWith('kernel-')) {
         const vermagicMatch = name.match(/kernel-\d+\.\d+\.\d+~([a-f0-9]{10,})(?:-r\d+)?\.apk$/);
         if (vermagicMatch) {
-          vermagic = vermagicMatch[1];  // Сохраняем значение vermagic
-          console.log(`Found vermagic: ${vermagic} for ${target}/${subtarget}`);
+          vermagic = vermagicMatch[1];
+          console.log(`Found vermagic: ${vermagic}`);
         }
       }
     });
 
-    // Получаем информацию о pkgarch
+    // Извлечение pkgarch
     const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
     const kmodsPage = await fetchHTML(kmodsUrl);
     const kmodsLinks = [];
@@ -77,17 +78,15 @@ async function getDetails(target, subtarget) {
       }
     });
 
-    if (kmodsLinks.length >= 2) {
-      const seventhKmodLink = kmodsLinks[2];
+    if (kmodsLinks.length >= 1) {
+      const seventhKmodLink = kmodsLinks[1]; 
       const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`;
       const response = await axios.get(seventhKmodUrl);
       const data = response.data;
       if (data && data.architecture) {
         pkgarch = data.architecture;
-        console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
+        console.log(`Found pkgarch: ${pkgarch}`);
       }
-    } else {
-      console.log('Not enough kmod links found to select the seventh one.');
     }
 
   } catch (error) {
