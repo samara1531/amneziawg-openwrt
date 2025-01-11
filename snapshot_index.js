@@ -114,14 +114,19 @@ async function main() {
             tag: version,
             target,
             subtarget,
-            vermagic,
-            pkgarch,
+            vermagic,   // Добавляем vermagic в конфигурацию
+            pkgarch,    // Добавляем pkgarch в конфигурацию
           });
         }
       }
     }
 
+    // Логируем конфигурацию перед передачей
+    console.log('Job config:', jobConfig);
+
+    // Передаем job-config в следующий шаг
     core.setOutput('job-config', JSON.stringify(jobConfig));
+
   } catch (error) {
     core.setFailed(error.message);
   }
