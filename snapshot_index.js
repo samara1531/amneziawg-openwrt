@@ -79,7 +79,7 @@ async function getDetails(target, subtarget) {
     });
 
     if (kmodsLinks.length >= 1) {
-      const seventhKmodLink = kmodsLinks[1]; 
+      const seventhKmodLink = kmodsLinks[7]; 
       const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`;
       const response = await axios.get(seventhKmodUrl);
       const data = response.data;
