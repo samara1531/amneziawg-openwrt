@@ -58,11 +58,11 @@ async function getDetails(target, subtarget) {
     const $ = await fetchHTML(kmodsUrl);
     const kmodsLinks = [];
 
-    // Собираем все ссылки на страницы с kmods
+    // Собираем все ссылки, соответствующие шаблону 6.6.54-1-45f373ce241c6113ae3c7cbbdc506b11
     $('a').each((index, element) => {
       const name = $(element).attr('href');
       console.log('Found kmod link:', name);  // Логируем все ссылки
-      if (name && name.match(/^([a-f0-9]{32})\/$/)) {
+      if (name && name.match(/^\d+\.\d+\.\d+-\d+-[a-f0-9]{32}\/$/)) {
         kmodsLinks.push(name);
       }
     });
