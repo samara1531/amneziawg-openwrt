@@ -64,6 +64,11 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
+          
+      - name: Install Python3 elftools module
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pyelftools
 
       - name: Building kernel and tools
         #if: ${{ steps.cache-tools-kernel.outputs.cache-hit != 'true' }}
