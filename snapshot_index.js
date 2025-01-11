@@ -69,20 +69,22 @@ async function getDetails(target, subtarget) {
 
     console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
 
-    if (kmodsLinks.length > 0) {
-      // Берем первую ссылку из найденных
-      const firstKmodLink = kmodsLinks[0];
-      const firstKmodUrl = `${kmodsUrl}${firstKmodLink}index.json`; // Переход по первой ссылке и получаем index.json
+    if (kmodsLinks.length >= 7) {
+      // Берем седьмую ссылку из найденных
+      const seventhKmodLink = kmodsLinks[6]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
+      const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`; // Переход по седьмой ссылке и получаем index.json
 
-      console.log(`Fetching index.json from: ${firstKmodUrl}`); // Логируем URL для index.json
+      console.log(`Fetching index.json from: ${seventhKmodUrl}`); // Логируем URL для index.json
 
       // Загружаем index.json для получения pkgarch
-      const response = await axios.get(firstKmodUrl);
+      const response = await axios.get(seventhKmodUrl);
       const data = response.data;
       if (data && data.architecture) {
         pkgarch = data.architecture;
         console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
       }
+    } else {
+      console.log('Not enough kmod links found to select the seventh one.');
     }
 
     // Получаем информацию о vermagic из пакетов ядра на странице packages/
