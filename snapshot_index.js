@@ -49,13 +49,38 @@ async function getSubtargets(target) {
 }
 
 async function getDetails(target, subtarget) {
-  const profilesUrl = `${url}${target}/${subtarget}/profiles.json`;
-  const packagesUrl = `${url}${target}/${subtarget}/packages/`;
+  const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
   let vermagic = '';
   let pkgarch = '';
 
   try {
-    const $ = await fetchHTML(packagesUrl);
+    // Получаем список файлов kmods
+    const $ = await fetchHTML(kmodsUrl);
+    const kmodsLinks = [];
+    $('a').each((index, element) => {
+      const name = $(element).attr('href');
+      if (name && name.match(/^\d+\.\d+\.\d+-\d+-[a-f0-9]{10,}\.tar\.xz$/)) {
+        kmodsLinks.push(name);
+      }
+    });
+
+    if (kmodsLinks.length > 0) {
+      // Берем первую ссылку, которая соответствует шаблону
+      const firstKmodLink = kmodsLinks[0];
+      const firstKmodUrl = `${kmodsUrl}${firstKmodLink}/index.json`;
+
+      // Загружаем index.json для получения pkgarch
+      const response = await axios.get(firstKmodUrl);
+      const data = response.data;
+      if (data && data.architecture) {
+        pkgarch = data.architecture;
+        console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
+      }
+    }
+
+    // Получаем информацию о vermagic из пакетов ядра на странице packages/
+    const packagesUrl = `${url}${target}/${subtarget}/packages/`;
+    const $packages = await fetchHTML(packagesUrl);
     $('a').each((index, element) => {
       const name = $(element).attr('href');
       if (name && name.startsWith('kernel-')) {
@@ -67,11 +92,6 @@ async function getDetails(target, subtarget) {
       }
     });
 
-    const response = await axios.get(profilesUrl);
-    const data = response.data;
-    if (data && data['arch_packages']) {
-      pkgarch = data['arch_packages'];
-    }
   } catch (error) {
     console.error(`Error fetching data for ${target}/${subtarget}: ${error.message}`);
   }
