@@ -67,26 +67,37 @@ async function getDetails(target, subtarget) {
       }
     });
 
-    // Извлечение pkgarch
-    const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
-    const kmodsPage = await fetchHTML(kmodsUrl);
+  // Получаем HTML страницы с kmods
+    const $ = await fetchHTML(kmodsUrl);
     const kmodsLinks = [];
+
+    // Собираем все ссылки, соответствующие шаблону 6.6.54-1-45f373ce241c6113ae3c7cbbdc506b11
     $('a').each((index, element) => {
       const name = $(element).attr('href');
+      console.log('Found kmod link:', name);  // Логируем все ссылки
       if (name && name.match(/^\d+\.\d+\.\d+-\d+-[a-f0-9]{32}\/$/)) {
         kmodsLinks.push(name);
       }
     });
 
-    if (kmodsLinks.length >= 1) {
-      const seventhKmodLink = kmodsLinks[7]; 
-      const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`;
+    console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
+
+    if (kmodsLinks.length >= 6) {
+      // Берем седьмую ссылку из найденных
+      const seventhKmodLink = kmodsLinks[1]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
+      const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`; // Переход по седьмой ссылке и получаем index.json
+
+      console.log(`Fetching index.json from: ${seventhKmodUrl}`); // Логируем URL для index.json
+
+      // Загружаем index.json для получения pkgarch
       const response = await axios.get(seventhKmodUrl);
       const data = response.data;
       if (data && data.architecture) {
         pkgarch = data.architecture;
-        console.log(`Found pkgarch: ${pkgarch}`);
+        console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
       }
+    } else {
+      console.log('Not enough kmod links found to select the seventh one.');
     }
 
   } catch (error) {
