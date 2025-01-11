@@ -64,10 +64,14 @@ async function getDetails(target, subtarget) {
       }
     });
 
+    console.log('Kmods links found:', kmodsLinks); // Логирование ссылок
+
     if (kmodsLinks.length > 0) {
       // Берем первую ссылку, которая соответствует шаблону
       const firstKmodLink = kmodsLinks[0];
       const firstKmodUrl = `${kmodsUrl}${firstKmodLink}/index.json`;
+
+      console.log(`Fetching index.json from: ${firstKmodUrl}`); // Логирование URL для index.json
 
       // Загружаем index.json для получения pkgarch
       const response = await axios.get(firstKmodUrl);
