@@ -49,34 +49,37 @@ async function getSubtargets(target) {
 }
 
 async function getDetails(target, subtarget) {
-  const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
+  const packagesUrl = `${url}${target}/${subtarget}/packages/`;
   let vermagic = '';
   let pkgarch = '';
 
   try {
-    // Получаем HTML страницы с kmods
-    const $ = await fetchHTML(kmodsUrl);
-    const kmodsLinks = [];
-
-    // Собираем все ссылки, соответствующие шаблону 6.6.54-1-45f373ce241c6113ae3c7cbbdc506b11
+    const $ = await fetchHTML(packagesUrl);
     $('a').each((index, element) => {
       const name = $(element).attr('href');
-      console.log('Found kmod link:', name);  // Логируем все ссылки
+      if (name && name.startsWith('kernel-')) {
+        const vermagicMatch = name.match(/kernel-\d+\.\d+\.\d+~([a-f0-9]{10,})(?:-r\d+)?\.apk$/);
+        if (vermagicMatch) {
+          vermagic = vermagicMatch[1];  // Сохраняем значение vermagic
+          console.log(`Found vermagic: ${vermagic} for ${target}/${subtarget}`);
+        }
+      }
+    });
+
+    // Получаем информацию о pkgarch
+    const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
+    const kmodsPage = await fetchHTML(kmodsUrl);
+    const kmodsLinks = [];
+    $('a').each((index, element) => {
+      const name = $(element).attr('href');
       if (name && name.match(/^\d+\.\d+\.\d+-\d+-[a-f0-9]{32}\/$/)) {
         kmodsLinks.push(name);
       }
     });
 
-    console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
-
     if (kmodsLinks.length >= 7) {
-      // Берем седьмую ссылку из найденных
-      const seventhKmodLink = kmodsLinks[1]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
-      const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`; // Переход по седьмой ссылке и получаем index.json
-
-      console.log(`Fetching index.json from: ${seventhKmodUrl}`); // Логируем URL для index.json
-
-      // Загружаем index.json для получения pkgarch
+      const seventhKmodLink = kmodsLinks[1];
+      const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`;
       const response = await axios.get(seventhKmodUrl);
       const data = response.data;
       if (data && data.architecture) {
@@ -86,21 +89,6 @@ async function getDetails(target, subtarget) {
     } else {
       console.log('Not enough kmod links found to select the seventh one.');
     }
-
-    // Получаем информацию о vermagic из пакетов ядра на странице packages/
-    const packagesUrl = `${url}${target}/${subtarget}/packages/`;
-    const $packages = await fetchHTML(packagesUrl);
-    $('a').each((index, element) => {
-      const name = $(element).attr('href');
-      if (name && name.startsWith('kernel-')) {
-        // Обновленное регулярное выражение для извлечения vermagic
-        const vermagicMatch = name.match(/kernel-\d+\.\d+\.\d+~([a-f0-9]{32})(?:-r\d+)?\.apk$/);
-        if (vermagicMatch) {
-          vermagic = vermagicMatch[1];  // Сохраняем значение vermagic
-          console.log(`Found vermagic: ${vermagic} for ${target}/${subtarget}`);
-        }
-      }
-    });
 
   } catch (error) {
     console.error(`Error fetching data for ${target}/${subtarget}: ${error.message}`);
