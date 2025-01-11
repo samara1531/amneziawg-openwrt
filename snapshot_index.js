@@ -71,7 +71,7 @@ async function getDetails(target, subtarget) {
 
     if (kmodsLinks.length >= 7) {
       // Берем седьмую ссылку из найденных
-      const seventhKmodLink = kmodsLinks[6]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
+      const seventhKmodLink = kmodsLinks[1]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
       const seventhKmodUrl = `${kmodsUrl}${seventhKmodLink}index.json`; // Переход по седьмой ссылке и получаем index.json
 
       console.log(`Fetching index.json from: ${seventhKmodUrl}`); // Логируем URL для index.json
@@ -93,7 +93,8 @@ async function getDetails(target, subtarget) {
     $('a').each((index, element) => {
       const name = $(element).attr('href');
       if (name && name.startsWith('kernel-')) {
-        const vermagicMatch = name.match(/kernel-\d+\.\d+\.\d+~([a-f0-9]{10,})(?:-r\d+)?\.apk$/);
+        // Обновленное регулярное выражение для извлечения vermagic
+        const vermagicMatch = name.match(/kernel-\d+\.\d+\.\d+~([a-f0-9]{32})(?:-r\d+)?\.apk$/);
         if (vermagicMatch) {
           vermagic = vermagicMatch[1];  // Сохраняем значение vermagic
           console.log(`Found vermagic: ${vermagic} for ${target}/${subtarget}`);
