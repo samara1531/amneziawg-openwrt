@@ -1,0 +1,12 @@
+name: Auto_Sync OpenWRT Releases
+
+on:
+  schedule:
+    - cron: '10 23 */3 * *'
+  workflow_dispatch:
+
+jobs:
+  sync-releases:
+    runs-on: ubuntu-latest
+    steps:
+      - name: curl -s https://api.github.com/repos/samara1531/awg-openwrt/releases | egrep 'download_count' | cut '-d:' -f 2 | sed 's/,/+/' | xargs echo | xargs -IN echo N 0 | bc
