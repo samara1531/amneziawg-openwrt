@@ -2,8 +2,8 @@ name: Auto_Sync OpenWRT Releases
 
 on:
   schedule:
-    - cron: '30 23 */8 * *' # Проверка новых релизов
-  workflow_dispatch: # Возможность вручную запустить Action
+    - cron: '30 23 */1 * *'
+  workflow_dispatch:
 
 jobs:
   sync-releases:
@@ -11,6 +11,7 @@ jobs:
     outputs:
       release_exists: ${{ steps.check_release.outputs.release_exists }}
       release_tag: ${{ steps.get_release.outputs.release_tag }}
+      can_proceed: ${{ steps.check_metadata.outputs.can_proceed }}
     steps:
       - name: Checkout your repo
         uses: actions/checkout@v4
@@ -19,40 +20,108 @@ jobs:
         id: get_release
         run: |
           RELEASE_TAG=$(curl -s https://api.github.com/repos/openwrt/openwrt/tags | jq -r '.[0].name')
-          echo "release_tag=$RELEASE_TAG" >> $GITHUB_ENV
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
       - name: Check if release exists in your repo
         id: check_release
         run: |
-          RELEASE_EXISTS=$(curl -s https://api.github.com/repos/samara1531/awg-openwrt/releases/tags/${{ env.release_tag }} | jq -r .tag_name)
-          if [ -z "$RELEASE_EXISTS" ] || [ "$RELEASE_EXISTS" == "null" ]; then
-            echo "release_exists=false" >> $GITHUB_ENV
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/samara1531/awg-openwrt/releases/tags/${{ steps.get_release.outputs.release_tag }})
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "release_exists=true" >> $GITHUB_OUTPUT
           else
-            echo "release_exists=true" >> $GITHUB_ENV
+            echo "release_exists=false" >> $GITHUB_OUTPUT
+          fi
+          
+      - name: Check saved release tag and timestamp
+        id: check_metadata
+        run: |
+          echo "Comparing the saved release tag and its timestamp."
+          if [ -f saved_release_metadata.txt ]; then
+            # Разделяем файл на тег и дату
+            IFS=',' read SAVED_TAG SAVED_DATE < saved_release_metadata.txt
+            LATEST_TAG="${{ steps.get_release.outputs.release_tag }}"
+            LATEST_DATE="${{ steps.get_release.outputs.release_date }}"
+            echo "Saved Tag: $SAVED_TAG"
+            echo "Latest Tag: $LATEST_TAG"
+            echo "Saved Date: $SAVED_DATE"
+            echo "Latest Date: $LATEST_DATE"
+            # Проверка совпадения тегов
+            if [ "$SAVED_TAG" == "$LATEST_TAG" ]; then
+              
+              # Преобразуем дату в метку времени и сравниваем возраст
+              SAVED_EPOCH=$(date -d "$SAVED_DATE" +%s)
+              CURRENT_TIME=$(date +%s)
+              AGE=$(( (CURRENT_TIME - SAVED_EPOCH) / 3600 ))
+              if (( AGE <= 42 )); then
+                echo "Tag matches and is not older than 42 hours. Proceeding."
+                echo "can_proceed=true" >> $GITHUB_OUTPUT
+              else
+                echo "Tag matches but is older than 42 hours. Stopping."
+                echo "can_proceed=false" >> $GITHUB_OUTPUT
+              fi
+            else
+              echo "Tags do not match. Not proceeding."
+              echo "can_proceed=false" >> $GITHUB_OUTPUT
+            fi
+          else
+            echo "The saved_release_metadata.txt file does not exist. Cannot proceed."
+            echo "can_proceed=false" >> $GITHUB_OUTPUT
+          fi
+    
+      - name: Save RELEASE_TAG and current DATE to file only if changed
+        run: |
+          git checkout master
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+
+          # Проверяем, существует ли файл saved_release_metadata.txt
+          if [ -f saved_release_metadata.txt ]; then
+            # Разделяем файл на сохраненный тег и дату
+            IFS=',' read SAVED_TAG SAVED_DATE < saved_release_metadata.txt
+            echo "Saved Tag: $SAVED_TAG"
+          else
+            SAVED_TAG=""
+            echo "No saved release metadata. Assuming it is empty."
+          fi
+
+          # Получаем текущий тег (из шага с API-запросом)
+          CURRENT_TAG="${{ steps.get_release.outputs.release_tag }}"
+
+          # Сравниваем сохраненный тег с текущим тегом
+          if [ "$SAVED_TAG" != "$CURRENT_TAG" ]; then
+            echo "Tag has changed. Updating saved_release_metadata.txt."
+            
+            # Получаем текущую дату
+            CURRENT_DATE=$(date "+%Y-%m-%d %H:%M:%S")
+
+            # Сохраняем текущий тег и дату в файл
+            echo "$CURRENT_TAG,$CURRENT_DATE" > saved_release_metadata.txt
+
+            # Добавляем файл в git и пушим
+            git add saved_release_metadata.txt
+            git commit --allow-empty -m "Update release metadata with tag and current date"
+            git push origin master
+          else
+            echo "Tag has not changed. saved_release_metadata.txt will not be updated."
           fi
           
       - name: Create release in your repo
-        if: env.release_exists == 'false'
+        if: steps.check_release.outputs.release_exists == 'false' && steps.check_metadata.outputs.can_proceed == 'true'
         run: |
-          ART="
-          \`\`\`
-                   A M N E Z I A   W I R E G U A R D
-          -----------------------------------------------------
-                   OpenWrt ${{ env.release_tag }}
-          -----------------------------------------------------
-          \`\`\`"
           curl -X POST https://api.github.com/repos/samara1531/awg-openwrt/releases \
-            -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
-            -d '{
-                "tag_name": "${{ env.release_tag }}",
-                "name": "OpenWrt ${{ env.release_tag }}",
-                "body": "'"${ART//\"/\\\"}"'"
-              }'
+            -d @- <<EOF
+          {
+            "tag_name": "${{ steps.get_release.outputs.release_tag }}",
+            "name": "OpenWrt ${{ steps.get_release.outputs.release_tag }}",
+            "body": "A M N E Z I A - W I R E G U A R D"
+          }
+          EOF
 
   run-build:
     needs: sync-releases
-    if: needs.sync-releases.outputs.release_exists == 'false'
+    if: needs.sync-releases.outputs.can_proceed == 'true'
     uses: samara1531/awg-openwrt/.github/workflows/auto_build.yml@master
     with:
       tag_name: ${{ needs.sync-releases.outputs.release_tag }}
