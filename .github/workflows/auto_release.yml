@@ -52,11 +52,11 @@ jobs:
               SAVED_EPOCH=$(date -d "$SAVED_DATE" +%s)
               CURRENT_TIME=$(date +%s)
               AGE=$(( (CURRENT_TIME - SAVED_EPOCH) / 3600 ))
-              if (( AGE <= 42 )); then
-                echo "Tag matches and is not older than 42 hours. Proceeding."
+              if (( AGE <= 55 )); then
+                echo "Tag matches and is not older than 55 hours. Proceeding."
                 echo "can_proceed=true" >> $GITHUB_OUTPUT
               else
-                echo "Tag matches but is older than 42 hours. Stopping."
+                echo "Tag matches but is older than 55 hours. Stopping."
                 echo "can_proceed=false" >> $GITHUB_OUTPUT
               fi
             else
