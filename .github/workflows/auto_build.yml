@@ -60,12 +60,29 @@ jobs:
           path: "**"
           key: ${{ runner.os }}-build-vm4-${{ env.cache-name }}
 
+      - name: Check if package already exists
+        id: check-file
+        run: |
+          postfix="v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
+          FILE_URL="https://github.com/samara1531/awg-openwrt/releases/download/${{ inputs.tag_name }}/amneziawg-tools_${postfix}.ipk"
+          
+          GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
+          if curl -H "Authorization: token $GITHUB_TOKEN" --output /dev/null --silent --head --fail "$FILE_URL"; then
+            echo "FILE_EXISTS=true" >> $GITHUB_ENV
+          else
+            echo "FILE_EXISTS=false" >> $GITHUB_ENV
+          fi
+          
       - name: Install Python3 elftools module
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true      
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
 
       - name: Building kernel and tools
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true      
         #if: ${{ steps.cache-tools-kernel.outputs.cache-hit != 'true' }}
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
@@ -109,6 +126,8 @@ jobs:
           fi
 
       - name: Build AmneziaWG
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true      
         run: |
           VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
           echo "Vermagic: $VERMAGIC"
@@ -131,6 +150,8 @@ jobs:
           make V=s package/amneziawg-tools/compile
 
       - name: Prepare artifacts
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true      
         run: |
           tag_name=${{ inputs.tag_name }}
           mkdir -p awgrelease
@@ -140,6 +161,8 @@ jobs:
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
 
       - name: Release
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true      
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ inputs.tag_name }}
