@@ -62,13 +62,15 @@ jobs:
           
       # Прерываем job'у, если файл уже существует
       - name: Skip job if release file exists
-        if: env.FILE_EXISTS == 'true'
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true  
         run: |
           echo "Skipping job as release file already exists."
           exit 0
           
       - name: Get snapshot commit SHA and device ARCH
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true          
         run: |
           PROFILE_URL="https://downloads.openwrt.org/snapshots/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/profiles.json"
           SNAPSHOT_COMMIT_SHA=$(wget -q $PROFILE_URL -O- | tr ',' '\n' | grep "version_code"| awk -F: '{print $2}' | tr -d '"' | awk -F- '{print $2}')
@@ -85,10 +87,12 @@ jobs:
           
       - name: Checkout snapshot commit in openwrt repo
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true          
         run: git checkout ${{ env.SNAPSHOT_COMMIT_SHA}}
 
-      - name: Building kernel and tools
+      - name: Building kernel and tools  
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true        
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
           # Setup & install feeds
@@ -118,6 +122,8 @@ jobs:
           VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
           
       - name: Build AmneziaWG
+        if: env.FILE_EXISTS == 'false'      
+        continue-on-error: true      
         run: |
           VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
           echo "Vermagic: $VERMAGIC"
@@ -134,6 +140,7 @@ jobs:
           
       - name: Prepare artifacts
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true            
         run: |
           tag_name=${{ github.ref_name }}
           postfix="${{ matrix.build_env.tag }}_${{ matrix.build_env.vermagic }}_${{ matrix.build_env.pkgarch }}_${{ matrix.build_env.target }}_${{ matrix.build_env.subtarget }}"
@@ -145,6 +152,7 @@ jobs:
           
       - name: Delete old release assets
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true            
         run: |
           postfix="${{ matrix.build_env.pkgarch }}_${{ matrix.build_env.target }}_${{ matrix.build_env.subtarget }}"
           echo "Looking for old release files ending with: ${postfix}"
@@ -156,8 +164,9 @@ jobs:
             gh release delete-asset "${{ matrix.build_env.tag }}" "$asset_name" --repo samara1531/awg-openwrt
           done
           
-      - name: Release
+      - name: Release   
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true            
         uses: softprops/action-gh-release@v1
         with:
           files: awgrelease/*.apk
