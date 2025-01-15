@@ -2,7 +2,7 @@ name: Auto_Sync_Traffic
 
 on:
   schedule:
-    - cron: '10 23 */7 * *'
+    - cron: '10 23 */4 * *'
   workflow_dispatch:
 
 jobs:
