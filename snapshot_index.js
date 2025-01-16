@@ -19,7 +19,7 @@ async function fetchHTML(url) {
     const { data } = await axios.get(url);
     return cheerio.load(data);
   } catch (error) {
-    console.error(`Error fetching HTML for ${url}: ${error}`);
+    console.error(`Error fetching HTML for ${url}: ${error.message}`);
     throw error;
   }
 }
@@ -53,7 +53,6 @@ async function getDetails(target, subtarget) {
   let pkgarch = '';
 
   try {
-    // Извлечение vermagic
     const packagesUrl = `${url}${target}/${subtarget}/packages/`;
     const $ = await fetchHTML(packagesUrl);
     $('a').each((index, element) => {
@@ -67,48 +66,20 @@ async function getDetails(target, subtarget) {
       }
     });
 
-    // Получаем HTML страницы с kmods
-    const kmodsUrl = `${url}${target}/${subtarget}/kmods/`;
-    const $kmods = await fetchHTML(kmodsUrl);
-    const kmodsLinks = [];
+    const indexJsonUrl = `${packagesUrl}index.json`;
+    console.log(`Fetching pkgarch from: ${indexJsonUrl}`);
 
-    // Собираем все ссылки, соответствующие шаблону 6.6.54-1-45f373ce241c6113ae3c7cbbdc506b11
-    $kmods('a').each((index, element) => {
-      const name = $kmods(element).attr('href');
-      console.log('Found kmod link:', name);  // Логируем все ссылки
-      if (name && name.match(/^\d+\.\d+\.\d+-\d+-[a-f0-9]{32}\/$/)) {
-        kmodsLinks.push(name);
-      }
-    });
-
-    console.log('Kmods links found:', kmodsLinks); // Логируем массив ссылок
-
-    if (kmodsLinks.length >= 0) {
-      // Берем 1 ссылку из найденных
-      const sixthKmodLink = kmodsLinks[0]; // Индексация с 0, поэтому седьмой элемент — это kmodsLinks[6]
-      const sixthKmodUrl = `${kmodsUrl}${sixthKmodLink}index.json`; // Переход по 1 ссылке и получаем index.json
-
-      console.log(`Fetching index.json from: ${sixthKmodUrl}`); // Логируем URL для index.json
-
-      // Загружаем index.json для получения pkgarch
-      const response = await axios.get(sixthKmodUrl);
-      
-      if (response.status === 200) {
-        const data = response.data;
-        console.log('Received data from index.json:', data);  // Логируем полученные данные
-
-        // Проверяем, что в JSON есть нужные данные
-        if (data && data.architecture) {
-          pkgarch = data.architecture;
-          console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
-        } else {
-          console.error('No architecture found in index.json');
-        }
+    const response = await axios.get(indexJsonUrl);
+    if (response.status === 200) {
+      const data = response.data;
+      if (data && data.architecture) {
+        pkgarch = data.architecture;
+        console.log(`Found pkgarch: ${pkgarch} for ${target}/${subtarget}`);
       } else {
-        console.error('Failed to fetch index.json. Status code:', response.status);
+        console.error('No architecture found in index.json');
       }
     } else {
-      console.log('Not enough kmod links found to select the sixth one.');
+      console.error('Failed to fetch index.json. Status code:', response.status);
     }
 
   } catch (error) {
