@@ -52,7 +52,7 @@ jobs:
           echo "Checking for release file: $RELEASE_FILE in release: $TAG"
 
           # Используем GitHub CLI для проверки наличия файла в релизе
-          if gh release view "$TAG" --repo samara1531/amneziawg-openwrt/awg-openwrt --json assets --jq ".assets | .[].name" | grep -q "$RELEASE_FILE"; then
+          if gh release view "$TAG" --repo samara1531/amneziawg-openwrt --json assets --jq ".assets | .[].name" | grep -q "$RELEASE_FILE"; then
             echo "Release file $RELEASE_FILE already exists. Skipping job."
             echo "FILE_EXISTS=true" >> $GITHUB_ENV
           else
@@ -62,12 +62,14 @@ jobs:
       # Прерываем job'у, если файл уже существует
       - name: Skip job if release file exists
         if: env.FILE_EXISTS == 'true'
+        continue-on-error: true         
         run: |
           echo "Skipping job as release file already exists."
           exit 0
 
       - name: Get snapshot commit SHA and device ARCH
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true         
         run: |
           PROFILE_URL="https://downloads.openwrt.org/snapshots/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/profiles.json"
           SNAPSHOT_COMMIT_SHA=$(wget -q $PROFILE_URL -O- | tr ',' '\n' | grep "version_code"| awk -F: '{print $2}' | tr -d '"' | awk -F- '{print $2}')
@@ -80,22 +82,25 @@ jobs:
 
       - uses: actions/checkout@v4
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true         
         with:
           repository: openwrt/openwrt
           fetch-depth: 0
 
       - name: Checkout snapshot commit in openwrt repo
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true         
         run: git checkout ${{ env.SNAPSHOT_COMMIT_SHA}}
 
       - name: Building kernel and tools
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true         
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
           # Setup & install feeds
           wget https://downloads.openwrt.org/snapshots/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/feeds.buildinfo -O feeds.conf
-          echo "src-git awgopenwrt https://github.com/samara1531/amneziawg-openwrt/awg-openwrt.git" >> ./feeds.conf
+          echo "src-git awgopenwrt https://github.com/samara1531/amneziawg-openwrt.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
 
           # Setup config with AWG and dependencies
@@ -133,6 +138,7 @@ jobs:
 
       - name: Build AmneziaWG
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true         
         run: |
           VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
           echo "Vermagic: $VERMAGIC"
@@ -156,6 +162,7 @@ jobs:
 
       - name: Prepare artifacts
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true         
         run: |
           tag_name=${{  github.ref_name }}
           mkdir -p awgrelease
@@ -166,6 +173,7 @@ jobs:
 
       - name: Delete old release assets
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true         
         run: |
           postfix="${{ matrix.build_env.pkgarch }}_${{ matrix.build_env.target }}_${{ matrix.build_env.subtarget }}"
           echo "Looking for old release files ending with: ${postfix}"
@@ -181,6 +189,7 @@ jobs:
 
       - name: Release
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true   
         uses: softprops/action-gh-release@v1
         with:
           files: awgrelease/*.apk
