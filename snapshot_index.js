@@ -12,7 +12,7 @@ if (!version || version !== 'SNAPSHOT') {
   process.exit(1);
 }
 
-const url = 'https://downloads.immortalwrt.org/snapshots/targets/';
+const url = 'https://downloads.openwrt.org/snapshots/targets/';
 
 async function fetchHTML(url) {
   try {
