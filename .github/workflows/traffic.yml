@@ -11,5 +11,5 @@ jobs:
     steps:
       - name: Fetch and count downloads using jq
         run: |
-            total_downloads=$(curl -s https://api.github.com/repos/samara1531/awg-openwrt/releases | jq '[.[] | .assets[]? | .download_count] | add')
+            total_downloads=$(curl -s https://api.github.com/repos/samara1531/amneziawg-openwrt/releases | jq '[.[] | .assets[]? | .download_count] | add')
             echo "Total downloads: $total_downloads"
