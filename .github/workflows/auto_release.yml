@@ -21,6 +21,7 @@ jobs:
         run: |
           RELEASE_TAG=$(curl -s https://api.github.com/repos/openwrt/openwrt/tags | jq -r '.[0].name')
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+          
       - name: Check if release exists in your repo
         id: check_release
         run: |
