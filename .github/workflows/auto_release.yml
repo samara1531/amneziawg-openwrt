@@ -15,38 +15,28 @@ jobs:
     steps:
       - name: Checkout your repo
         uses: actions/checkout@v4
-        
+
       - name: Get the latest release from OpenWRT
         id: get_release
         run: |
           RELEASE_TAG=$(curl -s https://api.github.com/repos/openwrt/openwrt/tags | jq -r '.[0].name')
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
-
       - name: Check if release exists in your repo
         id: check_release
         run: |
-          RELEASE_URL="https://api.github.com/repos/samara1531/amneziawg-openwrt/releases/tags/${{ steps.get_release.outputs.release_tag }}"
-          MAX_RETRIES=3
-          for ((i=1; i<=MAX_RETRIES; i++)); do
-            RESPONSE=$(curl -s -w "%{http_code}" -o response.json $RELEASE_URL)
-            if [ "$RESPONSE" -eq 200 ]; then
-              echo "release_exists=true" >> $GITHUB_OUTPUT
-              break
-            elif [ "$RESPONSE" -eq 404 ]; then
-              echo "release_exists=false" >> $GITHUB_OUTPUT
-              break
-            else
-              echo "Retry $i/$MAX_RETRIES - Error: $RESPONSE"
-              sleep 5
-            fi
-          done
-          cat response.json  # Log for diagnostics
-
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" https://api.github.com/repos/samara1531/amneziawg-openwrt/releases/tags/${{ steps.get_release.outputs.release_tag }})
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "release_exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "release_exists=false" >> $GITHUB_OUTPUT
+          fi
+          
       - name: Check saved release tag and timestamp
         id: check_metadata
         run: |
           echo "Comparing the saved release tag and its timestamp."
           if [ -f saved_release_metadata.txt ]; then
+            # Разделяем файл на тег и дату
             IFS=',' read SAVED_TAG SAVED_DATE < saved_release_metadata.txt
             LATEST_TAG="${{ steps.get_release.outputs.release_tag }}"
             LATEST_DATE="${{ steps.get_release.outputs.release_date }}"
@@ -54,7 +44,10 @@ jobs:
             echo "Latest Tag: $LATEST_TAG"
             echo "Saved Date: $SAVED_DATE"
             echo "Latest Date: $LATEST_DATE"
+            # Проверка совпадения тегов
             if [ "$SAVED_TAG" == "$LATEST_TAG" ]; then
+              
+              # Преобразуем дату в метку времени и сравниваем возраст
               SAVED_EPOCH=$(date -d "$SAVED_DATE" +%s)
               CURRENT_TIME=$(date +%s)
               AGE=$(( (CURRENT_TIME - SAVED_EPOCH) / 3600 ))
@@ -73,33 +66,39 @@ jobs:
             echo "The saved_release_metadata.txt file does not exist. Cannot proceed."
             echo "can_proceed=false" >> $GITHUB_OUTPUT
           fi
-
+    
       - name: Save RELEASE_TAG and current DATE to file only if changed
         run: |
           git checkout master
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-
+          # Проверяем, существует ли файл saved_release_metadata.txt
           if [ -f saved_release_metadata.txt ]; then
+            # Разделяем файл на сохраненный тег и дату
             IFS=',' read SAVED_TAG SAVED_DATE < saved_release_metadata.txt
             echo "Saved Tag: $SAVED_TAG"
           else
             SAVED_TAG=""
             echo "No saved release metadata. Assuming it is empty."
           fi
-
+          # Получаем текущий тег (из шага с API-запросом)
           CURRENT_TAG="${{ steps.get_release.outputs.release_tag }}"
-
+          # Сравниваем сохраненный тег с текущим тегом
           if [ "$SAVED_TAG" != "$CURRENT_TAG" ]; then
             echo "Tag has changed. Updating saved_release_metadata.txt."
+            
+            # Получаем текущую дату
             CURRENT_DATE=$(date "+%Y-%m-%d %H:%M:%S")
+            # Сохраняем текущий тег и дату в файл
             echo "$CURRENT_TAG,$CURRENT_DATE" > saved_release_metadata.txt
+            # Добавляем файл в git и пушим
             git add saved_release_metadata.txt
             git commit --allow-empty -m "Update release metadata with tag and current date"
             git push origin master
           else
             echo "Tag has not changed. saved_release_metadata.txt will not be updated."
-
+          fi
+          
       - name: Create release in your repo
         if: steps.check_release.outputs.release_exists == 'false' && steps.check_metadata.outputs.can_proceed == 'true'
         run: |
@@ -113,7 +112,6 @@ jobs:
             "body": "A M N E Z I A - W I R E G U A R D"
           }
           EOF
-
   run-build:
     needs: sync-releases
     if: needs.sync-releases.outputs.can_proceed == 'true'
