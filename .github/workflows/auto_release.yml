@@ -72,6 +72,7 @@ jobs:
           else
             echo "The saved_release_metadata.txt file does not exist. Cannot proceed."
             echo "can_proceed=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Save RELEASE_TAG and current DATE to file only if changed
         run: |
