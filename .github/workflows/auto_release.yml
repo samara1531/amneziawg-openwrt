@@ -15,11 +15,11 @@ jobs:
     steps:
       - name: Checkout your repo
         uses: actions/checkout@v4
-
+        
       - name: Get the latest release from OpenWRT
         id: get_release
         run: |
-          RELEASE_TAG=$(curl -s https://api.github.com/repos/openwrt/openwrt/releases/latest | jq -r '.tag_name')
+          RELEASE_TAG=$(curl -s https://api.github.com/repos/openwrt/openwrt/tags | jq -r '.[0].name')
           echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
       - name: Check if release exists in your repo
