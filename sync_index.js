@@ -61,6 +61,7 @@ async function getDetails(target, subtarget) {
       if (vermagicMatch) {
         vermagic = vermagicMatch[1];
         pkgarch = vermagicMatch[2];
+        console.log(`Found vermagic: ${vermagic}, pkgarch: ${pkgarch} for target: ${target}, subtarget: ${subtarget}`);
       }
     }
   });
