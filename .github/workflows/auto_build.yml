@@ -79,16 +79,17 @@ jobs:
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
-
+          
       - name: Building kernel and tools
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
+        continue-on-error: true          
+        #if: ${{ steps.cache-tools-kernel.outputs.cache-hit != 'true' }}
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
           # Setup & install feeds
           wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/feeds.buildinfo -O feeds.conf
-          echo "src-git amneziawg-openwrt https://github.com/samara1531/amneziawg-openwrt.git" >> ./feeds.conf
+          echo "src-git awgopenwrt https://github.com/Slava-Shchipunov/awg-openwrt.git" >> ./feeds.conf
           ./scripts/feeds update && ./scripts/feeds install -a
 
           # Setup config with AWG and dependencies
