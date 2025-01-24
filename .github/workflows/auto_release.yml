@@ -2,7 +2,7 @@ name: Auto_Sync OpenWRT Releases
 
 on:
   schedule:
-    - cron: '30 23 */1 * *'
+    - cron: '30 23 */2 * *'
   workflow_dispatch:
 
 jobs:
@@ -52,11 +52,11 @@ jobs:
               SAVED_EPOCH=$(date -d "$SAVED_DATE" +%s)
               CURRENT_TIME=$(date +%s)
               AGE=$(( (CURRENT_TIME - SAVED_EPOCH) / 3600 ))
-              if (( AGE <= 75 )); then
-                echo "Tag matches and is not older than 75 hours. Proceeding."
+              if (( AGE <= 150 )); then
+                echo "Tag matches and is not older than 150 hours. Proceeding."
                 echo "can_proceed=true" >> $GITHUB_OUTPUT
               else
-                echo "Tag matches but is older than 75 hours. Stopping."
+                echo "Tag matches but is older than 150 hours. Stopping."
                 echo "can_proceed=false" >> $GITHUB_OUTPUT
               fi
             else
