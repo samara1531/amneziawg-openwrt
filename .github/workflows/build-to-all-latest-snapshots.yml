@@ -26,7 +26,8 @@ jobs:
           node-version: '20.16.0'
 
       - name: Install dependencies
-        run: npm install
+        run: npm update 
+             npm install
 
       - name: Generate Job Config
         id: generate-config
