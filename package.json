@@ -1,21 +1,21 @@
 {
-  "name": "awg-openwrt",
+  "name": "aamneziawg-openwrt",
   "version": "1.0.0",
   "description": "Amnezia Wireguard packages for OpenWRT",
   "main": "index.js",
   "scripts": {
-    "get-build-envs": "node index.js"
+    "get-build-envs": "node sync_index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/samara1531/awg-openwrt.git"
+    "url": "git+https://github.com/samara1531/amneziawg-openwrt.git"
   },
   "author": "Slava Shchipunov",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/samara1531/awg-openwrt/issues"
+    "url": "https://github.com/samara1531/amneziawg-openwrt/issues"
   },
-  "homepage": "https://github.com/samara1531/awg-openwrt#readme",
+  "homepage": "https://github.com/samara1531/amneziawg-openwrt#readme",
   "dependencies": {
     "@actions/core": "^1.10.1",
     "axios": "^1.3.1",
