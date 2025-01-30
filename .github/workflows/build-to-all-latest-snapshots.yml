@@ -27,6 +27,7 @@ jobs:
 
       - name: Install dependencies
         run: npm audit fix
+             npm fund
              npm install
 
       - name: Generate Job Config
