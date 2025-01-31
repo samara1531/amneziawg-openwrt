@@ -137,6 +137,13 @@ jobs:
             exit 1
           fi
 
+      - name: Install Python3 elftools module
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true      
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pyelftools
+          
       - name: Build AmneziaWG
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
