@@ -150,7 +150,6 @@ jobs:
 
       - name: Build AmneziaWG
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
         run: |
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
           VERMAGIC_EXPECTED="${{ matrix.build_env.vermagic }}"
