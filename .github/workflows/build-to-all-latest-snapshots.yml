@@ -46,12 +46,12 @@ jobs:
       - name: Check if release file exists
         id: check_release
         run: |
-          postfix="${{ matrix.build_env.tag }}_${{ matrix.build_env.vermagic }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
+          # Формируем имя файла с заменой ~ на .
+          vermagic_cleaned=$(echo "${{ matrix.build_env.vermagic }}" | sed 's/~/\./g')
+          postfix="${{ matrix.build_env.tag }}_${vermagic_cleaned}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
           RELEASE_FILE="kmod-amneziawg_${postfix}.apk"
           TAG=${{ matrix.build_env.tag }}
-
           echo "Checking for release file: $RELEASE_FILE in release: $TAG"
-
           # Используем GitHub CLI для проверки наличия файла в релизе
           if gh release view "$TAG" --repo samara1531/amneziawg-openwrt --json assets --jq ".assets | .[].name" | grep -q "$RELEASE_FILE"; then
             echo "Release file $RELEASE_FILE already exists. Skipping job."
