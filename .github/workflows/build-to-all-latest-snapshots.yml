@@ -137,12 +137,11 @@ jobs:
           make target/linux/compile  -i -j `nproc` V=s
 
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
-          VERMAGIC_CLEANED=$(echo "$VERMAGIC" | sed 's/^[^~]*~//')
+          VERMAGIC_EXPECTED="${{ matrix.build_env.vermagic }}"
+          VERMAGIC_EXPECTED_CLEANED=$(echo "$VERMAGIC_EXPECTED" | sed 's/^[^~]*~//')
 
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-
-          if [ "$VERMAGIC_CLEANED" != "$VERMAGIC_EXPECTED" ]; then
-            echo "Vermagic mismatch: $VERMAGIC_CLEANED, expected $VERMAGIC_EXPECTED"
+          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED_CLEANED" ]; then
+            echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED_CLEANED"
             exit 1
           fi
           
@@ -151,12 +150,11 @@ jobs:
         continue-on-error: true
         run: |
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
-          VERMAGIC_CLEANED=$(echo "$VERMAGIC" | sed 's/^[^~]*~//')
+          VERMAGIC_EXPECTED="${{ matrix.build_env.vermagic }}"
+          VERMAGIC_EXPECTED_CLEANED=$(echo "$VERMAGIC_EXPECTED" | sed 's/^[^~]*~//')
 
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-
-          if [ "$VERMAGIC_CLEANED" != "$VERMAGIC_EXPECTED" ]; then
-            echo "Vermagic mismatch: $VERMAGIC_CLEANED, expected $VERMAGIC_EXPECTED"
+          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED_CLEANED" ]; then
+            echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED_CLEANED"
             exit 1
           fi
 
