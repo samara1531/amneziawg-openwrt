@@ -135,6 +135,9 @@ jobs:
 
           VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
 
+          echo "VERMAGIC: $VERMAGIC"
+          echo "VERMAGIC_EXPECTED: $VERMAGIC_EXPECTED"
+          
           if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
             echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED   
             echo "VERMAGIC_MATCH=false" >> $GITHUB_ENV
