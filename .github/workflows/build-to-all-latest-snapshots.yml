@@ -140,11 +140,14 @@ jobs:
           VERMAGIC_EXPECTED="${{ matrix.build_env.vermagic }}"
           VERMAGIC_EXPECTED_CLEANED=$(echo "$VERMAGIC_EXPECTED" | sed 's/^[^~]*~//')
 
+          echo "VERMAGIC: $VERMAGIC"
+          echo "VERMAGIC_EXPECTED_CLEANED: $VERMAGIC_EXPECTED_CLEANED"
+
           if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED_CLEANED" ]; then
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED_CLEANED"
             exit 1
           fi
-          
+
       - name: Build AmneziaWG
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
