@@ -136,32 +136,27 @@ jobs:
           echo "    > make target/linux/compile"
           make target/linux/compile  -i -j `nproc` V=s
 
-          VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
+          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+          VERMAGIC_CLEANED=$(echo "$VERMAGIC" | sed 's/^[^~]*~//')
+
           VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
 
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED
+          if [ "$VERMAGIC_CLEANED" != "$VERMAGIC_EXPECTED" ]; then
+            echo "Vermagic mismatch: $VERMAGIC_CLEANED, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
-
-      - name: Install Python3 elftools module
-        if: env.FILE_EXISTS == 'false'
-        continue-on-error: true      
-        run: |
-          python3 -m pip install --upgrade pip
-          python3 -m pip install pyelftools
           
       - name: Build AmneziaWG
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
         run: |
-          VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
-          echo "Vermagic: $VERMAGIC"
+          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+          VERMAGIC_CLEANED=$(echo "$VERMAGIC" | sed 's/^[^~]*~//')
 
           VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
 
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED
+          if [ "$VERMAGIC_CLEANED" != "$VERMAGIC_EXPECTED" ]; then
+            echo "Vermagic mismatch: $VERMAGIC_CLEANED, expected $VERMAGIC_EXPECTED"
             exit 1
           fi
 
