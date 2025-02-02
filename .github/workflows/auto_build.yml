@@ -128,7 +128,7 @@ jobs:
 
       - name: Build AmneziaWG
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true      
+        continue-on-error: true
         run: |
           VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
           echo "Vermagic: $VERMAGIC"
@@ -137,12 +137,10 @@ jobs:
 
           echo "VERMAGIC: $VERMAGIC"
           echo "VERMAGIC_EXPECTED: $VERMAGIC_EXPECTED"
-          
+
           if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED   
-            echo "VERMAGIC_MATCH=false" >> $GITHUB_ENV
-          else
-            echo "VERMAGIC_MATCH=true" >> $GITHUB_ENV
+            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED
+            exit 1
           fi
 
           # Ignore kmod build for some targets, replace with the awg-go
@@ -156,7 +154,7 @@ jobs:
           make V=s package/amneziawg-tools/compile
 
       - name: Prepare artifacts
-        if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MATCH == 'true'
+        if: env.FILE_EXISTS == 'false'
         continue-on-error: true      
         run: |
           tag_name=${{ inputs.tag_name }}
@@ -167,7 +165,7 @@ jobs:
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
 
       - name: Release
-        if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MATCH == 'true'
+        if: env.FILE_EXISTS == 'false'
         continue-on-error: true      
         uses: softprops/action-gh-release@v1
         with:
