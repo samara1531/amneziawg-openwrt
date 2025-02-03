@@ -63,14 +63,12 @@ jobs:
       # Прерываем job'у, если файл уже существует
       - name: Skip job if release file exists
         if: env.FILE_EXISTS == 'true'
-        continue-on-error: true
         run: |
           echo "Skipping job as release file already exists."
           exit 0
 
       - name: Get snapshot commit SHA and device ARCH
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
         run: |
           SNAPSHOT_COMMIT_SHA=$(wget -qO- "https://downloads.openwrt.org/snapshots/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/version.buildinfo" | cut -d'-' -f2)
 
@@ -80,19 +78,17 @@ jobs:
 
       - uses: actions/checkout@v4
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
         with:
           repository: openwrt/openwrt
           fetch-depth: 0
 
       - name: Checkout snapshot commit in openwrt repo
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
         run: git checkout ${{ env.SNAPSHOT_COMMIT_SHA}}
 
       - name: Install Python3 elftools module
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true      
+        continue-on-error: true
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
