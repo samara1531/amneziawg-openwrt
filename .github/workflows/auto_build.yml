@@ -76,14 +76,14 @@ jobs:
           
       - name: Install Python3 elftools module
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true      
+        continue-on-error: true
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
           
       - name: Building kernel and tools
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true          
+        continue-on-error: true
         #if: ${{ steps.cache-tools-kernel.outputs.cache-hit != 'true' }}
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
@@ -155,7 +155,7 @@ jobs:
 
       - name: Prepare artifacts
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true      
+        continue-on-error: true
         run: |
           tag_name=${{ inputs.tag_name }}
           mkdir -p awgrelease
@@ -166,7 +166,7 @@ jobs:
 
       - name: Release
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true      
+        continue-on-error: true
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ inputs.tag_name }}
