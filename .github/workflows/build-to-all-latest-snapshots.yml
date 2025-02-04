@@ -129,16 +129,6 @@ jobs:
           echo "    > make target/linux/compile"
           make target/linux/compile  -i -j `nproc` V=s
 
-          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
-          VERMAGIC_EXPECTED="${{ matrix.build_env.vermagic }}"
-          VERMAGIC_EXPECTED_CLEANED=$(echo "$VERMAGIC_EXPECTED" | sed 's/^[^~]*~//')
-          echo "VERMAGIC: $VERMAGIC"
-          echo "VERMAGIC_EXPECTED_CLEANED: $VERMAGIC_EXPECTED_CLEANED"
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED_CLEANED" ]; then
-            echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED_CLEANED"
-            exit 1
-          fi
-
       - name: Build AmneziaWG
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
@@ -146,11 +136,16 @@ jobs:
           VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
           VERMAGIC_EXPECTED="${{ matrix.build_env.vermagic }}"
           VERMAGIC_EXPECTED_CLEANED=$(echo "$VERMAGIC_EXPECTED" | sed 's/^[^~]*~//')
+
           echo "VERMAGIC: $VERMAGIC"
           echo "VERMAGIC_EXPECTED_CLEANED: $VERMAGIC_EXPECTED_CLEANED"
+
           if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED_CLEANED" ]; then
             echo "Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED_CLEANED"
-            exit 1
+            echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
+            exit 1  # Останавливаем выполнение job'ы
+          else
+            echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
           fi
 
           # Ignore kmod build for some targets, replace with the awg-go
@@ -164,7 +159,7 @@ jobs:
           make V=s package/amneziawg-tools/compile
 
       - name: Prepare artifacts
-        if: env.FILE_EXISTS == 'false'
+        if: env.VERMAGIC_MISMATCH == 'false'
         continue-on-error: true
         run: |
           tag_name=${{  github.ref_name }}
@@ -175,7 +170,7 @@ jobs:
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg-*.apk awgrelease/kmod-amneziawg_${postfix}.apk
 
       - name: Delete old release assets
-        if: env.FILE_EXISTS == 'false'
+        if: env.VERMAGIC_MISMATCH == 'false'
         continue-on-error: true
         run: |
           postfix="${{ matrix.build_env.pkgarch }}_${{ matrix.build_env.target }}_${{ matrix.build_env.subtarget }}"
@@ -191,7 +186,7 @@ jobs:
           done
 
       - name: Release
-        if: env.FILE_EXISTS == 'false'
+        if: env.VERMAGIC_MISMATCH == 'false'
         continue-on-error: true
         uses: softprops/action-gh-release@v1
         with:
