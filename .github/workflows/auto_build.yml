@@ -134,8 +134,7 @@ jobs:
           echo "Vermagic: $VERMAGIC"
 
           VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-
-          echo "VERMAGIC: $VERMAGIC"
+          
           echo "VERMAGIC_EXPECTED: $VERMAGIC_EXPECTED"
 
           if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
