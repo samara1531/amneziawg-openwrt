@@ -84,7 +84,6 @@ jobs:
       - name: Building kernel and tools
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
-        #if: ${{ steps.cache-tools-kernel.outputs.cache-hit != 'true' }}
         run: |
           echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
 
