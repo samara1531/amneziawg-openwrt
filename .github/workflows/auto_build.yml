@@ -20,13 +20,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.16.0'
+          node-version: '20.17.0'
           
       - name: Get OpenWRT version from tag_name
         id: get_version
         run: |
           echo "VERSION=${{ inputs.tag_name }}" | sed 's/^v//' >> $GITHUB_ENV
-
+          
       - name: Install dependencies2
         run: npm install axios
         
