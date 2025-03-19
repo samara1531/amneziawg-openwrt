@@ -27,9 +27,11 @@ jobs:
         run: |
           echo "VERSION=${{ inputs.tag_name }}" | sed 's/^v//' >> $GITHUB_ENV
 
+      - name: Install dependencies2
+        run: npm install axios
+        
       - name: Install dependencies
-        run: npm audit fix
-             npm install
+        run: npm install -g npm
         
       - name: Generate Job Config
         id: generate-config
