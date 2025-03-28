@@ -122,7 +122,6 @@ jobs:
           echo "Vermagic: $VERMAGIC"
 
           VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-          
           echo "VERMAGIC_EXPECTED: $VERMAGIC_EXPECTED"
 
           if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
@@ -141,6 +140,7 @@ jobs:
           make V=s package/amneziawg-tools/compile
 
       - name: Prepare artifacts
+        id: prepare_artifacts
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
         run: |
@@ -152,8 +152,7 @@ jobs:
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
 
       - name: Release
-        if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
+        if: steps.prepare_artifacts.outcome == 'success'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ inputs.tag_name }}
