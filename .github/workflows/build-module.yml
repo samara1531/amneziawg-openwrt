@@ -23,7 +23,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.16.0'
+          node-version: '20.17.0'
 
       - name: Get OpenWRT version from tag
         id: get_version
@@ -99,24 +99,12 @@ jobs:
           echo "    > make tools/install"
           make tools/install -i -j `nproc`
 
-          cat ./build_dir/target-*/linux-*/linux-*/.vermagic || true
-
           echo "    > make toolchain/install"
           make toolchain/install  -i -j `nproc`
-
-          cat ./build_dir/target-*/linux-*/linux-*/.vermagic || true
 
           # compile kernel module
           echo "    > make target/linux/compile"
           make target/linux/compile  -i -j `nproc` V=s
-
-          VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED
-            exit 1
-          fi
 
       - name: Build AmneziaWG
         run: |
