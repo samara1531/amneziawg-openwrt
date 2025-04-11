@@ -53,15 +53,6 @@ jobs:
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: Cache Tools and Kernel
-        id: cache-tools-kernel
-        uses: actions/cache@v4
-        env:
-          cache-name: "cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-${{ matrix.build_env.target}}-${{ matrix.build_env.subtarget}}"
-        with:
-          path: "**"
-          key: ${{ runner.os }}-build-vm4-${{ env.cache-name }}
-
       - name: Check if package already exists
         id: check-file
         run: |
@@ -74,14 +65,25 @@ jobs:
           else
             echo "FILE_EXISTS=false" >> $GITHUB_ENV
           fi
-          
+
+      - name: Cache Tools and Kernel
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
+        id: cache-tools-kernel
+        uses: actions/cache@v4
+        env:
+          cache-name: "cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-${{ matrix.build_env.target}}-${{ matrix.build_env.subtarget}}"
+        with:
+          path: "**"
+          key: ${{ runner.os }}-build-vm4-${{ env.cache-name }}
+
       - name: Install Python3 elftools module
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
-          
+
       - name: Building kernel and tools
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
