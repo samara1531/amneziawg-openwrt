@@ -141,6 +141,7 @@ jobs:
             echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
           else
             echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
+          fi
 
       - name: 💡 Build AmneziaWG packages
         if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH != 'true'
