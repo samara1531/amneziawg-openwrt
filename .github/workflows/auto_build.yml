@@ -89,20 +89,24 @@ jobs:
 
       - name: 🛠️ Setup OpenWRT build
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
         run: |
           wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/feeds.buildinfo -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara1531/amneziawg-openwrt.git" >> ./feeds.conf
 
       - name: 🔄 Update feeds
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
         run: ./scripts/feeds update -a
 
       - name: 📦 Install feeds
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
         run: ./scripts/feeds install -a
 
       - name: 📄 Setup build config
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
         run: |
           wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
           echo "CONFIG_PACKAGE_kmod-amneziawg=m" >> .config
@@ -114,10 +118,12 @@ jobs:
 
       - name: ⚖️ Make defconfig
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
         run: make defconfig
 
       - name: 🔧 Build toolchain & kernel
         if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
         run: |
           make tools/install -i -j$(nproc)
           make toolchain/install -i -j$(nproc)
