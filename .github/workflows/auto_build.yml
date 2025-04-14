@@ -142,10 +142,6 @@ jobs:
           else
             echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
 
-      - name: ⛔ Пропуск сборки из-за vermagic mismatch
-        if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH == 'true'
-        run: echo "Сборка пропущена: VERMAGIC не совпадает"
-
       - name: 💡 Build AmneziaWG packages
         if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH != 'true'
         run: |
