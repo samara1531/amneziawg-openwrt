@@ -11,54 +11,60 @@ jobs:
   generate-config:
     runs-on: ubuntu-latest
     outputs:
-        job-config: ${{ steps.generate-config.outputs.job-config }}
-        release_tag: ${{ env.VERSION }}
+      job-config: ${{ steps.generate-config.outputs.job-config }}
+      release_tag: ${{ env.VERSION }}
     steps:
-      - name: Checkout code
+      - name: 📋 Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: ♻️ Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-cache
+
+      - name: ⚛️ Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20.17.0'
-          
-      - name: Get OpenWRT version from tag_name
+
+      - name: 🔢 Get OpenWRT version from tag_name
         id: get_version
+        run: echo "VERSION=${{ inputs.tag_name }}" | sed 's/^v//' >> $GITHUB_ENV
+
+      - name: 📆 Install dependencies (npm)
         run: |
-          echo "VERSION=${{ inputs.tag_name }}" | sed 's/^v//' >> $GITHUB_ENV
-          
-      - name: Install dependencies
-        run: 
           npm install
           npm install axios
-        
-      - name: Generate Job Config
+
+      - name: ✏️ Generate Job Config
         id: generate-config
         run: node sync_index.js ${{ env.VERSION }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build:
-     name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch}} :: ${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}} build"
-     runs-on: ubuntu-latest
-     needs: generate-config
-     strategy:
+    name: "v${{ matrix.build_env.tag }} - ${{ matrix.build_env.pkgarch}} :: ${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}} build"
+    runs-on: ubuntu-latest
+    needs: generate-config
+    strategy:
       matrix:
-       build_env: ${{ fromJson(needs.generate-config.outputs.job-config) }}
+        build_env: ${{ fromJson(needs.generate-config.outputs.job-config) }}
 
-     steps:
-      - uses: actions/checkout@v4
+    steps:
+      - name: 📋 Checkout OpenWRT source
+        uses: actions/checkout@v4
         with:
           repository: openwrt/openwrt
           ref: v${{ matrix.build_env.tag }}
           fetch-depth: 0
 
-      - name: Check if package already exists
+      - name: 🔎 Check if package already exists
         id: check-file
         run: |
           postfix="v${{ matrix.build_env.tag }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
           FILE_URL="https://github.com/samara1531/amneziawg-openwrt/releases/download/${{ inputs.tag_name }}/amneziawg-tools_${postfix}.ipk"
-          
+
           GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           if curl -H "Authorization: token $GITHUB_TOKEN" --output /dev/null --silent --head --fail "$FILE_URL"; then
             echo "FILE_EXISTS=true" >> $GITHUB_ENV
@@ -66,36 +72,38 @@ jobs:
             echo "FILE_EXISTS=false" >> $GITHUB_ENV
           fi
 
-      - name: Cache Tools and Kernel
+      - name: 🪜 Cache Feeds and DL
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
-        id: cache-tools-kernel
         uses: actions/cache@v4
-        env:
-          cache-name: "cache-tools-kernel-${{ matrix.build_env.tag }}-${{ matrix.build_env.pkgarch}}-${{ matrix.build_env.target}}-${{ matrix.build_env.subtarget}}"
         with:
-          path: "**"
-          key: ${{ runner.os }}-build-vm4-${{ env.cache-name }}
+          path: |
+            ./feeds
+            ./dl
+          key: ${{ runner.os }}-feeds-dl-${{ matrix.build_env.tag }}-${{ matrix.build_env.target}}-${{ matrix.build_env.subtarget}}
 
-      - name: Install Python3 elftools module
+      - name: 🐛 Install Python3 elftools module
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
         run: |
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
 
-      - name: Building kernel and tools
+      - name: 🛠️ Setup OpenWRT build
         if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
         run: |
-          echo "pkgarch: ${{ matrix.build_env.pkgarch}}, target:${{ matrix.build_env.target}}, subtarget: ${{ matrix.build_env.subtarget}}"
-
-          # Setup & install feeds
           wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/feeds.buildinfo -O feeds.conf
           echo "src-git awgopenwrt https://github.com/samara1531/amneziawg-openwrt.git" >> ./feeds.conf
-          ./scripts/feeds update && ./scripts/feeds install -a
 
-          # Setup config with AWG and dependencies
+      - name: 🔄 Update feeds
+        if: env.FILE_EXISTS == 'false'
+        run: ./scripts/feeds update -a
+
+      - name: 📦 Install feeds
+        if: env.FILE_EXISTS == 'false'
+        run: ./scripts/feeds install -a
+
+      - name: 📄 Setup build config
+        if: env.FILE_EXISTS == 'false'
+        run: |
           wget https://downloads.openwrt.org/releases/${{ matrix.build_env.tag }}/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/config.buildinfo -O .config
           echo "CONFIG_PACKAGE_kmod-amneziawg=m" >> .config
           echo "CONFIG_PACKAGE_amneziawg-tools=y" >> .config
@@ -104,34 +112,33 @@ jobs:
           echo "CONFIG_PACKAGE_kmod-crypto-lib-chacha20poly1305=m" >> .config
           echo "CONFIG_PACKAGE_kmod-crypto-chacha20poly1305=m" >> .config
 
-          make defconfig
+      - name: ⚖️ Make defconfig
+        if: env.FILE_EXISTS == 'false'
+        run: make defconfig
 
-          echo "    > make tools/install"
-          make tools/install -i -j `nproc`
+      - name: 🔧 Build toolchain & kernel
+        if: env.FILE_EXISTS == 'false'
+        run: |
+          make tools/install -i -j$(nproc)
+          make toolchain/install -i -j$(nproc)
+          make target/linux/compile -i -j$(nproc) V=s
 
-          echo "    > make toolchain/install"
-          make toolchain/install  -i -j `nproc`
-
-          # compile kernel module
-          echo "    > make target/linux/compile"
-          make target/linux/compile  -i -j `nproc` V=s
-
-      - name: Build AmneziaWG
+      - name: ✅ Verify vermagic
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
         run: |
-          VERMAGIC=`cat ./build_dir/target-*/linux-*/linux-*/.vermagic`
-          echo "Vermagic: $VERMAGIC"
+          VERMAGIC=$(cat ./build_dir/target-*/linux-*/linux-*/.vermagic)
+          echo "VERMAGIC: $VERMAGIC"
+          echo "EXPECTED: ${{ matrix.build_env.vermagic }}"
+          if [ "$VERMAGIC" != "${{ matrix.build_env.vermagic }}" ]; then
+            echo "::warning:: Vermagic mismatch: $VERMAGIC, expected ${{ matrix.build_env.vermagic }}"
+            echo "VERMAGIC_MISMATCH=true" >> $GITHUB_ENV
+          else
+            echo "VERMAGIC_MISMATCH=false" >> $GITHUB_ENV
 
-          VERMAGIC_EXPECTED=${{ matrix.build_env.vermagic }}
-          echo "VERMAGIC_EXPECTED: $VERMAGIC_EXPECTED"
-
-          if [ "$VERMAGIC" != "$VERMAGIC_EXPECTED" ]; then
-            echo Vermagic mismatch: $VERMAGIC, expected $VERMAGIC_EXPECTED
-            exit 1
-          fi
-
-          # Ignore kmod build for some targets, replace with the awg-go
+      - name: 💡 Build AmneziaWG packages
+        if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH != 'true'
+        run: |
           make package/kmod-amneziawg/{clean,download,prepare} V=s || true
           make package/kmod-amneziawg/compile V=s || true
 
@@ -141,10 +148,9 @@ jobs:
           make V=s package/amneziawg-tools/{clean,download,prepare}
           make V=s package/amneziawg-tools/compile
 
-      - name: Prepare artifacts
+      - name: 📂 Prepare artifacts
         id: prepare_artifacts
-        if: env.FILE_EXISTS == 'false'
-        continue-on-error: true
+        if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH != 'true'
         run: |
           tag_name=${{ inputs.tag_name }}
           mkdir -p awgrelease
@@ -153,7 +159,7 @@ jobs:
           cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-app-amneziawg_*.ipk awgrelease/luci-app-amneziawg_${postfix}.ipk
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
 
-      - name: Release
+      - name: 📤 Release to GitHub
         if: steps.prepare_artifacts.outcome == 'success'
         uses: softprops/action-gh-release@v1
         with:
