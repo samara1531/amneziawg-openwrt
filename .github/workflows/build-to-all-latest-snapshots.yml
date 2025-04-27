@@ -120,12 +120,8 @@ jobs:
           echo "    > make tools/install"
           make tools/install -i -j `nproc`
 
-          cat ./build_dir/target-*/linux-*/linux-*/.vermagic || true
-
           echo "    > make toolchain/install"
           make toolchain/install  -i -j `nproc`
-
-          cat ./build_dir/target-*/linux-*/linux-*/.vermagic || true
 
           # compile kernel module
           echo "    > make target/linux/compile"
