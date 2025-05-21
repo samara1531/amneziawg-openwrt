@@ -618,7 +618,7 @@ diff --color -urN -x uapi -x compat -x crypto -x .idea -x tests -x Kbuild -x Kco
  #include <net/udp.h>
  #include <net/sock.h>
  
-+ static u32 wg_get_random_u32_inclusive(u32 floor, u32 ceil)
++u32 wg_get_random_u32_inclusive(u32 floor, u32 ceil)
 +{
 +	u32 diff = ceil - floor + 1;
 +	return floor + (get_random_u32() % diff);
