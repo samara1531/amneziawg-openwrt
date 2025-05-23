@@ -220,6 +220,8 @@ diff --color -urN -x uapi -x compat -x crypto -x .idea -x tests -x Kbuild -x Kco
  
  #include <linux/init.h>
  #include <linux/module.h>
+
+ static void prepare_advanced_secured_message(struct sk_buff *skb, struct wg_device *wg);
 @@ -45,7 +44,7 @@
  	if (ret < 0)
  		goto err_netlink;
@@ -268,6 +270,8 @@ diff --color -urN -x uapi -x compat -x crypto -x .idea -x tests -x Kbuild -x Kco
  
  #include <linux/if.h>
  #include <net/genetlink.h>
+
+ static void prepare_advanced_secured_message(struct sk_buff *skb, struct wg_device *wg);
 @@ -27,7 +27,16 @@
  	[WGDEVICE_A_FLAGS]		= { .type = NLA_U32 },
  	[WGDEVICE_A_LISTEN_PORT]	= { .type = NLA_U16 },
@@ -483,7 +487,7 @@ diff --color -urN -x uapi -x compat -x crypto -x .idea -x tests -x Kbuild -x Kco
  	return 0;
  }
  
-+void prepare_advanced_secured_message(struct sk_buff *skb, struct wg_device *wg)
++ static void prepare_advanced_secured_message(struct sk_buff *skb, struct wg_device *wg)
 +{
 +	u32 assumed_type = SKB_TYPE_LE32(skb);
 +	u32 assumed_offset;
