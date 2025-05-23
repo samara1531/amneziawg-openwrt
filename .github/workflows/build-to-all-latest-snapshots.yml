@@ -92,6 +92,8 @@ jobs:
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
         run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-netifaces python3-pip
           python3 -m pip install --upgrade pip
           python3 -m pip install pyelftools
           
