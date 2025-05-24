@@ -88,6 +88,13 @@ jobs:
         if: env.FILE_EXISTS == 'false'
         run: git checkout ${{ env.SNAPSHOT_COMMIT_SHA}}
 
+      - name: Install Python3 elftools module
+        if: env.FILE_EXISTS == 'false'
+        continue-on-error: true
+        run: |
+          python3 -m pip install --upgrade pip
+          python3 -m pip install pyelftools
+
       - name: Building kernel and tools
         if: env.FILE_EXISTS == 'false'
         continue-on-error: true
