@@ -165,15 +165,7 @@ jobs:
             postfix="${{ matrix.build_env.tag }}_${{ matrix.build_env.vermagic }}_${{ matrix.build_env.pkgarch}}_${{ matrix.build_env.target}}_${{ matrix.build_env.subtarget}}"
             cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/amneziawg-tools-*.apk awgrelease/amneziawg-tools_${postfix}.apk
             cp bin/packages/${{ matrix.build_env.pkgarch }}/awgopenwrt/luci-app-amneziawg-*.apk awgrelease/luci-app-amneziawg_${postfix}.apk
-
-            if ls bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg-*.apk 1> /dev/null 2>&1; then
-              cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg-*.apk awgrelease/kmod-amneziawg_${postfix}.apk
-            elif ls bin/targets/${{ matrix.build_env.target}}/packages/kmod-amneziawg-*.apk 1> /dev/null 2>&1; then
-              cp bin/targets/${{ matrix.build_env.target}}/packages/kmod-amneziawg-*.apk awgrelease/kmod-amneziawg_${postfix}.apk
-            else
-              echo "kmod-amneziawg package not found"
-              exit 1
-            fi
+            cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg-*.apk awgrelease/kmod-amneziawg_${postfix}.apk
 
       - name: Delete old release assets
         if: env.VERMAGIC_MISMATCH == 'false'
