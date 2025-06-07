@@ -10,7 +10,7 @@ RESET="\033[0m"
 
 #Репозиторий OpenWRT должен быть доступен для установки зависимостей пакета kmod-amneziawg
 check_repo() {
-    printf "\033[32;1mChecking OpenWrt repo availability...\033[0m\n"
+    printf "${RED}Проверка доступности репозитория OpenWRT..ожидайте....${RESET}"
     opkg update | grep -q "Ошибка загрузки" && printf "\033[32;1mopkg failed. Проверьте подключение к интернету, либо установленную дату\033[0m\n" && exit 1
 }
 
@@ -36,66 +36,66 @@ install_awg_packages() {
         wget -O "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN} kmod-amneziawg загружен успешно${RESET}"
+            echo "kmod-amneziawg загружен успешно"
         else
-            echo "${RED}Ошибка загрузки kmod-amneziawg. Установите вручную и повторите${RESET}"
+            echo "Ошибка загрузки kmod-amneziawg. Установите вручную и повторите"
             exit 1
         fi
         
         opkg install "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN} kmod-amneziawg загружен успешно${RESET}"
+            echo "kmod-amneziawg загружен успешно"
         else
-            echo "${RED}Ошибка загрузки kmod-amneziawg. Установите вручную и повторите${RESET}"
+            echo "Ошибка загрузки kmod-amneziawg. Установите вручную и повторите"
             exit 1
         fi
     fi
 
     if opkg list-installed | grep -q amneziawg-tools; then
-        echo "${GREEN} amneziawg-tools уже установлен${RESET}"
+        echo "amneziawg-tools уже установлен"
     else
         AMNEZIAWG_TOOLS_FILENAME="amneziawg-tools${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${AMNEZIAWG_TOOLS_FILENAME}"
         wget -O "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN} amneziawg-tools загружен успешно${RESET}"
+            echo "amneziawg-tools загружен успешно"
         else
-            echo "${RED}Ошибка загрузки amneziawg-tools. Установите вручную и повторите${RESET}"
+            echo "Ошибка загрузки amneziawg-tools. Установите вручную и повторите"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN} amneziawg-tools загружен успешно${RESET}"
+            echo "amneziawg-tools загружен успешно"
         else
-            echo "${RED}Ошибка загрузки amneziawg-tools. Установите вручную и повторите${RESET}"
+            echo "Ошибка загрузки amneziawg-tools. Установите вручную и повторите"
             exit 1
         fi
     fi
     
     if opkg list-installed | grep -q luci-app-amneziawg; then
-        echo "${GREEN}luci-app-amneziawg уже установлен${RESET}"
+        echo "luci-app-amneziawg уже установлен"
     else
         LUCI_APP_AMNEZIAWG_FILENAME="luci-app-amneziawg${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${LUCI_APP_AMNEZIAWG_FILENAME}"
         wget -O "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}luci-app-amneziawg загружен успешно${RESET}"
+            echo "luci-app-amneziawg загружен успешно"
         else
-            echo "${RED}Ошибка загрузки luci-app-amneziawg. Установите вручную и повторите${RESET}"
+            echo "Ошибка загрузки luci-app-amneziawg. Установите вручную и повторите"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}luci-app-amneziawg загружен успешно${RESET}"
+            echo "luci-app-amneziawg загружен успешно"
         else
-            echo "${RED}Ошибка загрузки luci-app-amneziawg. Установите вручную и повторите${RESET}"
+            echo "Ошибка загрузки luci-app-amneziawg. Установите вручную и повторите"
             exit 1
         fi
     fi
@@ -116,7 +116,7 @@ configure_amneziawg_interface() {
         if echo "$AWG_IP" | egrep -oq '^([0-9]{1,3}\.){3}[0-9]{1,3}/[0-9]+$'; then
             break
         else
-            echo "${RED}IP неверен. Повторите ввод.${RESET}"
+            echo "IP неверен. Повторите ввод."
         fi
     done
 
@@ -143,8 +143,7 @@ configure_amneziawg_interface() {
     uci set network.${INTERFACE_NAME}.private_key=$AWG_PRIVATE_KEY_INT
     uci set network.${INTERFACE_NAME}.addresses=$AWG_IP
 
-    uci set network.${INTERFACE_NAME}.option_defaultroute='0'
-    uci set network.${INTERFACE_NAME}.option_delegate='0'
+    uci set network.${INTERFACE_NAME}.defaultroute='0' 
 
     uci set network.${INTERFACE_NAME}.awg_jc=$AWG_JC
     uci set network.${INTERFACE_NAME}.awg_jmin=$AWG_JMIN
@@ -176,7 +175,7 @@ configure_amneziawg_interface() {
 
     echo -e "${YELLOW}Настройка firewall...${RESET}"
     if ! uci show firewall | grep -q "@zone.*name='${ZONE_NAME}'"; then
-        printf "${YELLOW}Zone Create${RESET}"
+        printf "Zone Create"
         uci add firewall zone
         uci set firewall.@zone[-1].name=$ZONE_NAME
         uci set firewall.@zone[-1].network=$INTERFACE_NAME
@@ -190,7 +189,7 @@ configure_amneziawg_interface() {
     fi
 
     if ! uci show firewall | grep -q "@forwarding.*name='${ZONE_NAME}'"; then
-        printf "${YELLOW}Configured forwarding${RESET}"
+        printf "${GREEN)Configured forwarding ${RESET}"
         uci add firewall forwarding
         uci set firewall.@forwarding[-1]=forwarding
         uci set firewall.@forwarding[-1].name="${ZONE_NAME}-lan"
@@ -203,7 +202,7 @@ configure_amneziawg_interface() {
 
 check_repo
 
-установка_awg_packages
+install_awg_packages
 
 printf "${GREEN}Вы хотите настроить amneziawg interface? (y/n): ${RESET}"
 read IS_SHOULD_CONFIGURE_AWG_INTERFACE
@@ -218,7 +217,7 @@ echo -e "${YELLOW}Требуется перезапустить сетевые �
 read RESTART_NETWORK
 
 if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
-    echo -e "${YELLOW}Перезапуск сети...${RESET}"
+    echo -e "Перезапуск сети..."
     service network stop
     sleep 2
     service network start
