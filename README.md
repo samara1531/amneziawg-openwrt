@@ -10,7 +10,7 @@ Autoinstall
 ```
 sh <(wget -O - https://raw.githubusercontent.com/samara1531/amneziawg-openwrt/refs/heads/master/amneziawg-install.sh)
 ```
-Ru lang (на русском)
+Rus lang (на русском)
 ```
 sh <(wget -O - https://raw.githubusercontent.com/samara1531/amneziawg-openwrt/refs/heads/master/RU_amneziawg-install.sh)
 ```
