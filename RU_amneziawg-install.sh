@@ -11,7 +11,7 @@ RESET="\033[0m"
 #Репозиторий OpenWRT должен быть доступен для установки зависимостей пакета kmod-amneziawg
 check_repo() {
     printf "\033[32;1mChecking OpenWrt repo availability...\033[0m\n"
-    opkg update | grep -q "${RED}Не удалось выполнить opkg update. Проверьте подключение к интернету или дату. Для синхронизации времени: ntpd -p ptbtime1.ptb.de${RESET}" && exit 1
+    opkg update | grep -q "Ошибка загрузки" && printf "\033[32;1mopkg failed. Проверьте подключение к интернету, либо установленную дату\033[0m\n" && exit 1
 }
 
 install_awg_packages() {
@@ -29,73 +29,73 @@ install_awg_packages() {
     mkdir -p "$AWG_DIR"
     
     if opkg list-installed | grep -q kmod-amneziawg; then
-        echo "${GREEN}${PACKAGE} уже установлен${RESET}"
+        echo "kmod-amneziawg уже установлен"
     else
         KMOD_AMNEZIAWG_FILENAME="kmod-amneziawg${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${KMOD_AMNEZIAWG_FILENAME}"
         wget -O "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}${PACKAGE} загружен успешно${RESET}"
+            echo "${GREEN} kmod-amneziawg загружен успешно${RESET}"
         else
-            echo "${RED}Ошибка загрузки ${PACKAGE}. Установите вручную и повторите${RESET}"
+            echo "${RED}Ошибка загрузки kmod-amneziawg. Установите вручную и повторите${RESET}"
             exit 1
         fi
         
         opkg install "$AWG_DIR/$KMOD_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}${PACKAGE} загружен успешно${RESET}"
+            echo "${GREEN} kmod-amneziawg загружен успешно${RESET}"
         else
-            echo "${RED}Ошибка загрузки ${PACKAGE}. Установите вручную и повторите${RESET}"
+            echo "${RED}Ошибка загрузки kmod-amneziawg. Установите вручную и повторите${RESET}"
             exit 1
         fi
     fi
 
     if opkg list-installed | grep -q amneziawg-tools; then
-        echo "${GREEN}${PACKAGE} уже установлен${RESET}"
+        echo "${GREEN} amneziawg-tools уже установлен${RESET}"
     else
         AMNEZIAWG_TOOLS_FILENAME="amneziawg-tools${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${AMNEZIAWG_TOOLS_FILENAME}"
         wget -O "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}${PACKAGE} загружен успешно${RESET}"
+            echo "${GREEN} amneziawg-tools загружен успешно${RESET}"
         else
-            echo "${RED}Ошибка загрузки ${PACKAGE}. Установите вручную и повторите${RESET}"
+            echo "${RED}Ошибка загрузки amneziawg-tools. Установите вручную и повторите${RESET}"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$AMNEZIAWG_TOOLS_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}${PACKAGE} загружен успешно${RESET}"
+            echo "${GREEN} amneziawg-tools загружен успешно${RESET}"
         else
-            echo "${RED}Ошибка загрузки ${PACKAGE}. Установите вручную и повторите${RESET}"
+            echo "${RED}Ошибка загрузки amneziawg-tools. Установите вручную и повторите${RESET}"
             exit 1
         fi
     fi
     
     if opkg list-installed | grep -q luci-app-amneziawg; then
-        echo "${GREEN}${PACKAGE} уже установлен${RESET}"
+        echo "${GREEN}luci-app-amneziawg уже установлен${RESET}"
     else
         LUCI_APP_AMNEZIAWG_FILENAME="luci-app-amneziawg${PKGPOSTFIX}"
         DOWNLOAD_URL="${BASE_URL}v${VERSION}/${LUCI_APP_AMNEZIAWG_FILENAME}"
         wget -O "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME" "$DOWNLOAD_URL"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}${PACKAGE} загружен успешно${RESET}"
+            echo "${GREEN}luci-app-amneziawg загружен успешно${RESET}"
         else
-            echo "${RED}Ошибка загрузки ${PACKAGE}. Установите вручную и повторите${RESET}"
+            echo "${RED}Ошибка загрузки luci-app-amneziawg. Установите вручную и повторите${RESET}"
             exit 1
         fi
 
         opkg install "$AWG_DIR/$LUCI_APP_AMNEZIAWG_FILENAME"
 
         if [ $? -eq 0 ]; then
-            echo "${GREEN}${PACKAGE} загружен успешно${RESET}"
+            echo "${GREEN}luci-app-amneziawg загружен успешно${RESET}"
         else
-            echo "${RED}Ошибка загрузки ${PACKAGE}. Установите вручную и повторите${RESET}"
+            echo "${RED}Ошибка загрузки luci-app-amneziawg. Установите вручную и повторите${RESET}"
             exit 1
         fi
     fi
@@ -104,10 +104,10 @@ install_awg_packages() {
 }
 
 configure_amneziawg_interface() {
-    INTERFACE_NAME="awg1"
-    CONFIG_NAME="amneziawg_awg1"
+    INTERFACE_NAME="awg3"
+    CONFIG_NAME="amneziawg_awg3"
     PROTO="amneziawg"
-    ZONE_NAME="awg1"
+    ZONE_NAME="awg3"
 
     read -r -p "Введите PrivateKey ([Interface]):"$'\n' AWG_PRIVATE_KEY_INT
 
@@ -121,28 +121,30 @@ configure_amneziawg_interface() {
     done
 
     read -r -p "Введите PublicKey ([Peer])::"$'\n' AWG_PUBLIC_KEY_INT
-    read -r -p "If use PresharedKey, Enter this (from [Peer]). If your don't use leave blank:"$'\n' AWG_PRESHARED_KEY_INT
-    read -r -p "Введите PresharedKey ([Peer]), если используется. Иначе оставьте пустым:"$'\n' AWG_ENDPOINT_INT
+    read -r -p "Если используется PresharedKey, Введите (из раздела [Peer]). Если не используется, пропустите нажав ентер:"$'\n' AWG_PRESHARED_KEY_INT
+    read -r -p "Введите PresharedKey ([из раздела Peer]), Если не используется, пропустите нажав ентер:"$'\n' AWG_ENDPOINT_INT
 
     read -r -p "Введите Endpoint (домен или IP без порта, который до знака двоеточия : ) ([Peer]):"$'\n' AWG_ENDPOINT_INT
     read -r -p "Введите порт Endpoint ([Peer], по умолчанию 51820):"$'\n' AWG_ENDPOINT_PORT_INT
     AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
 
-    read -r -p "Введите значение Jc value (from [Interface]):"$'\n' AWG_JC
-    read -r -p "Введите значение Jmin value (from [Interface]):"$'\n' AWG_JMIN
-    read -r -p "Введите значение Jmax value (from [Interface]):"$'\n' AWG_JMAX
-    read -r -p "Введите значение S1 (from [Interface]):"$'\n' AWG_S1
-    read -r -p "Введите значение S2 (from [Interface]):"$'\n' AWG_S2
-    read -r -p "Введите значение H1 (from [Interface]):"$'\n' AWG_H1
-    read -r -p "Введите значение H2 (from [Interface]):"$'\n' AWG_H2
-    read -r -p "Введите значение H3 (from [Interface]):"$'\n' AWG_H3
-    read -r -p "Введите значение H4 (from [Interface]):"$'\n' AWG_H4
+    read -r -p "Введите значение Jc :"$'\n' AWG_JC
+    read -r -p "Введите значение Jmin :"$'\n' AWG_JMIN
+    read -r -p "Введите значение Jmax :"$'\n' AWG_JMAX
+    read -r -p "Введите значение S1 :"$'\n' AWG_S1
+    read -r -p "Введите значение S2 :"$'\n' AWG_S2
+    read -r -p "Введите значение H1 :"$'\n' AWG_H1
+    read -r -p "Введите значение H2 :"$'\n' AWG_H2
+    read -r -p "Введите значение H3 :"$'\n' AWG_H3
+    read -r -p "Введите значение H4 :"$'\n' AWG_H4
     
     uci set network.${INTERFACE_NAME}=interface
     uci set network.${INTERFACE_NAME}.proto=$PROTO
     uci set network.${INTERFACE_NAME}.private_key=$AWG_PRIVATE_KEY_INT
-    uci set network.${INTERFACE_NAME}.listen_port='51821'
     uci set network.${INTERFACE_NAME}.addresses=$AWG_IP
+
+    uci set network.${INTERFACE_NAME}.option_defaultroute='0'
+    uci set network.${INTERFACE_NAME}.option_delegate='0'
 
     uci set network.${INTERFACE_NAME}.awg_jc=$AWG_JC
     uci set network.${INTERFACE_NAME}.awg_jmin=$AWG_JMIN
@@ -162,7 +164,7 @@ configure_amneziawg_interface() {
     uci set network.@${CONFIG_NAME}[0].name="${INTERFACE_NAME}_client"
     uci set network.@${CONFIG_NAME}[0].public_key=$AWG_PUBLIC_KEY_INT
     uci set network.@${CONFIG_NAME}[0].preshared_key=$AWG_PRESHARED_KEY_INT
-    uci set network.@${CONFIG_NAME}[0].route_allowed_ips='1'
+    uci set network.@${CONFIG_NAME}[0].route_allowed_ips='0'
     uci set network.@${CONFIG_NAME}[0].persistent_keepalive='25'
     uci set network.@${CONFIG_NAME}[0].endpoint_host=$AWG_ENDPOINT_INT
     uci set network.@${CONFIG_NAME}[0].allowed_ips='0.0.0.0/0'
@@ -174,7 +176,7 @@ configure_amneziawg_interface() {
 
     echo -e "${YELLOW}Настройка firewall...${RESET}"
     if ! uci show firewall | grep -q "@zone.*name='${ZONE_NAME}'"; then
-        printf "\033[32;1mZone Create\033[0m\n"
+        printf "${YELLOW}Zone Create${RESET}"
         uci add firewall zone
         uci set firewall.@zone[-1].name=$ZONE_NAME
         uci set firewall.@zone[-1].network=$INTERFACE_NAME
@@ -188,7 +190,7 @@ configure_amneziawg_interface() {
     fi
 
     if ! uci show firewall | grep -q "@forwarding.*name='${ZONE_NAME}'"; then
-        printf "\033[32;1mConfigured forwarding\033[0m\n"
+        printf "${YELLOW}Configured forwarding${RESET}"
         uci add firewall forwarding
         uci set firewall.@forwarding[-1]=forwarding
         uci set firewall.@forwarding[-1].name="${ZONE_NAME}-lan"
@@ -201,9 +203,9 @@ configure_amneziawg_interface() {
 
 check_repo
 
-install_awg_packages
+установка_awg_packages
 
-printf "\033[32;1mDo Вы хотите настроить amneziawg interface? (y/n): \033[0m\n"
+printf "${GREEN}Вы хотите настроить amneziawg interface? (y/n): ${RESET}"
 read IS_SHOULD_CONFIGURE_AWG_INTERFACE
 
 if [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "y" ] || [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "Y" ]; then
