@@ -136,7 +136,7 @@ main
 
 main
 
-echo -e "${YELLOW}Хотите перезапустить сетевые службы сейчас? (y/n): ${RESET}"
+echo -e "${YELLOW}Требуется перезапустить сетевые службы, сделать это сейчас? (y/n): ${RESET}"
 read RESTART_NETWORK
 
 if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
