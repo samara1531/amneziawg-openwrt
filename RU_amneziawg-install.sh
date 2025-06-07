@@ -122,10 +122,9 @@ configure_amneziawg_interface() {
 
     read -r -p "Введите PublicKey ([Peer])::"$'\n' AWG_PUBLIC_KEY_INT
     read -r -p "Если используется PresharedKey, Введите (из раздела [Peer]). Если не используется, пропустите нажав ентер:"$'\n' AWG_PRESHARED_KEY_INT
-    read -r -p "Введите PresharedKey ([из раздела Peer]), Если не используется, пропустите нажав ентер:"$'\n' AWG_ENDPOINT_INT
 
     read -r -p "Введите Endpoint (домен или IP без порта, который до знака двоеточия : ) ([Peer]):"$'\n' AWG_ENDPOINT_INT
-    read -r -p "Введите порт Endpoint ([Peer], по умолчанию 51820):"$'\n' AWG_ENDPOINT_PORT_INT
+    read -r -p "Введите порт Endpoint (который после знака двоеточия : ):"$'\n' AWG_ENDPOINT_PORT_INT
     AWG_ENDPOINT_PORT_INT=${AWG_ENDPOINT_PORT_INT:-51820}
 
     read -r -p "Введите значение Jc :"$'\n' AWG_JC
