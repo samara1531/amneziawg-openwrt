@@ -134,7 +134,16 @@ main() {
 
 main
 
-echo -e "${YELLOW}Перезапуск сетевых служб...${RESET}"
-service network stop
-sleep 2
-service network start
+main
+
+echo -e "${YELLOW}Хотите перезапустить сетевые службы сейчас? (y/n): ${RESET}"
+read RESTART_NETWORK
+
+if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
+    echo -e "${YELLOW}Перезапуск сети...${RESET}"
+    service network stop
+    sleep 2
+    service network start
+else
+    echo -e "${YELLOW}Вы можете вручную перезапустить сеть командой: ${GREEN}service network stop && service network start${RESET}"
+fi
