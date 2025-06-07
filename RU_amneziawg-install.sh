@@ -188,7 +188,7 @@ configure_amneziawg_interface() {
     fi
 
     if ! uci show firewall | grep -q "@forwarding.*name='${ZONE_NAME}'"; then
-        printf "${GREEN)Configured forwarding ${RESET}"
+        printf "Configured forwarding"
         uci add firewall forwarding
         uci set firewall.@forwarding[-1]=forwarding
         uci set firewall.@forwarding[-1].name="${ZONE_NAME}-lan"
@@ -223,3 +223,5 @@ if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
 else
     echo -e "${YELLOW}Вы можете вручную перезапустить сеть командой: ${GREEN}service network stop && service network start${RESET}"
 fi
+
+main
