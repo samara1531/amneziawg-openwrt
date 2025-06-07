@@ -11,12 +11,10 @@ RESET="\033[0m"
 #Репозиторий OpenWRT должен быть доступен для установки зависимостей пакета kmod-amneziawg
 check_repo() {
     printf "${RED}Проверка доступности репозитория OpenWRT..ожидайте....${RESET}"
-    opkg update | grep -q "Ошибка загрузки" && printf "${RED}opkg failed. Проверьте подключение к интернету, либо установленную дату${RESET}" && exit 1
+    opkg update | grep -q "Failed to download" && printf "${RED}Failed. Проверьте подключение к интернету, либо установленную дату, время.${RESET}" && exit 1
 }
 
 install_awg_packages() {
-    echo -e "${YELLOW}Начинается установка пакетов AmneziaWG...${RESET}"
-    
     PKGARCH=$(opkg print-architecture | awk 'BEGIN {max=0} {if ($3 > max) {max = $3; arch = $2}} END {print arch}')
 
     TARGET=$(ubus call system board | jsonfilter -e '@.release.target' | cut -d '/' -f 1)
@@ -209,11 +207,11 @@ read IS_SHOULD_CONFIGURE_AWG_INTERFACE
 if [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "y" ] || [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "Y" ]; then
     configure_amneziawg_interface
 else
-    printf "${GREEN}===== Скрипт завершён успешно =====${RESET}"
+    printf "${GREEN}===== Скрипт завершён =====${RESET}"
 fi
 
-
-echo -e "${YELLOW}Требуется перезапустить сетевые службы, сделать это сейчас? (y/n): ${RESET}"
+#перезапуск сети
+printf "${YELLOW}Для запуска интерфейса awg требуется перезапустить сетевые службы, сделать это сейчас? (y/n): ${RESET}"
 read RESTART_NETWORK
 
 if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
@@ -224,7 +222,5 @@ if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
 else
     echo -e "${YELLOW}Вы можете вручную перезапустить сеть командой: ${GREEN}service network stop && service network start${RESET}"
 fi
-
-
 
 
