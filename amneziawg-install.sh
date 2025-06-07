@@ -204,4 +204,16 @@ else
     printf "\033[32;1mSkipping amneziawg interface configuration.\033[0m\n"
 fi
 
-service network stop && service network start
+echo -e "${YELLOW}To start the awg interface, network services need to be restarted, do you want to do that now? (y/n): ${RESET}"
+read RESTART_NETWORK
+
+if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
+    echo -e "Reload network..."
+    service network stop
+    sleep 2
+    service network start
+else
+    echo -e "${YELLOW}You can manually restart the network with the command: ${GREEN}service network stop && service network start${RESET}"
+fi
+
+
