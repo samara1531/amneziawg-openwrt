@@ -16,7 +16,7 @@ sh <(wget -O - https://raw.githubusercontent.com/samara1531/amneziawg-openwrt/re
 ```
 
 что-бы весь трафик пошел через интерфейс awg выполните.
-so that all traffic goes through the awg interface
+so that all traffic goes through the awg interface.
 ```
 uci set network.awg3.defaultroute='1'
 uci set network.awg3.route_allowed_ips='1'
