@@ -97,10 +97,10 @@ install_awg_packages() {
 }
 
 configure_amneziawg_interface() {
-    INTERFACE_NAME="awg1"
-    CONFIG_NAME="amneziawg_awg1"
+    INTERFACE_NAME="awg3"
+    CONFIG_NAME="amneziawg_awg3"
     PROTO="amneziawg"
-    ZONE_NAME="awg1"
+    ZONE_NAME="awg3"
 
     read -r -p "Enter the private key (from [Interface]):"$'\n' AWG_PRIVATE_KEY_INT
 
