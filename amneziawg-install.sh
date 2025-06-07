@@ -204,4 +204,4 @@ else
     printf "\033[32;1mSkipping amneziawg interface configuration.\033[0m\n"
 fi
 
-service network restart
+service network stop && service network start
