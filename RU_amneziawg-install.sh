@@ -11,7 +11,7 @@ RESET="\033[0m"
 #Репозиторий OpenWRT должен быть доступен для установки зависимостей пакета kmod-amneziawg
 check_repo() {
     printf "${RED}Проверка доступности репозитория OpenWRT..ожидайте....${RESET}"
-    opkg update | grep -q "Failed to download" && printf "${RED}Failed. Проверьте подключение к интернету, либо установленную дату, время.${RESET}" && exit 1
+    opkg update | grep -q "Failed to download" && printf "${RED}Failed. Проверьте подключение к интернету и установленную дату, время.${RESET}" && exit 1
 }
 
 install_awg_packages() {
