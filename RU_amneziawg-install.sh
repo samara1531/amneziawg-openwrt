@@ -207,7 +207,7 @@ read IS_SHOULD_CONFIGURE_AWG_INTERFACE
 if [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "y" ] || [ "$IS_SHOULD_CONFIGURE_AWG_INTERFACE" = "Y" ]; then
     configure_amneziawg_interface
 else
-    printf "${GREEN}===== Скрипт завершён =====${RESET}"
+    printf "${GREEN}===== Настройка интерфейса AWG пропущена =====${RESET}"
 fi
 
 #перезапуск сети
