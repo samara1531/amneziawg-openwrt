@@ -156,6 +156,7 @@ jobs:
           make V=s package/amneziawg-tools/compile
 
       - name: Prepare artifacts
+        id: prepare_artifacts
         if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH != 'true'
         run: |
           tag_name=${{  github.ref_name }}
