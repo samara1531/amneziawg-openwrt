@@ -166,7 +166,8 @@ jobs:
           cp bin/targets/${{ matrix.build_env.target}}/${{ matrix.build_env.subtarget}}/packages/kmod-amneziawg_*.ipk awgrelease/kmod-amneziawg_${postfix}.ipk
 
       - name: Release
-        if: env.FILE_EXISTS == 'false' && env.VERMAGIC_MISMATCH != 'true'
+        if: steps.prepare_artifacts.outcome == 'success'
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ inputs.tag_name }}
           files: awgrelease/*.ipk
