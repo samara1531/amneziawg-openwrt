@@ -18,5 +18,5 @@ so that all traffic goes through the awg interface.
 ```
 uci set network.awg3.defaultroute='1'
 uci set network.awg3.route_allowed_ips='1'
-service network stop && service network start
+reboot
 ```
