@@ -211,16 +211,15 @@ else
 fi
 
 #перезапуск сети
-printf "${YELLOW}Для запуска интерфейса awg требуется перезапустить сетевые службы, сделать это сейчас? (y/n): ${RESET}"
-read RESTART_NETWORK
+printf "${YELLOW}Для корректного запуска интерфейса awg требуется перезапустить роутер, сделать это сейчас? (y/n): ${RESET}"
+read RESTART_ROUTER
 
-if [ "$RESTART_NETWORK" = "y" ] || [ "$RESTART_NETWORK" = "Y" ]; then
-    echo -e "Перезапуск сети..."
-    service network stop
-    sleep 2
-    service network start
+if [ "$RESTART_ROUTER" = "y" ] || [ "$RESTART_ROUTER" = "Y" ]; then
+    echo -e "Перезапуск роутера..."
+    reboot
+    
 else
-    echo -e "${YELLOW}Вы можете вручную перезапустить сеть командой: ${GREEN}service network stop && service network start${RESET}"
+    echo -e "${YELLOW}Вы можете вручную перезапустить сеть командой: ${GREEN}reboot${RESET}"
 fi
 
 
