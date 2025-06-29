@@ -29,10 +29,6 @@ define Build/Prepare
 	cp -f src/Makefile $(PKG_BUILD_DIR)
 endef
 
-define Build/Configure
-    true
-endef
-
 define Build/Compile
 	$(MAKE) -C "$(LINUX_DIR)" \
 		$(KERNEL_MAKE_FLAGS) \
