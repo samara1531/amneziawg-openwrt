@@ -219,7 +219,7 @@ if [ "$RESTART_ROUTER" = "y" ] || [ "$RESTART_ROUTER" = "Y" ]; then
     reboot
     
 else
-    echo -e "${YELLOW}Вы можете вручную перезапустить сеть командой: ${GREEN}reboot${RESET}"
+    echo -e "${YELLOW}Вы можете вручную перезапустить командой: ${GREEN}reboot${RESET}"
 fi
 
 
