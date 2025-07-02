@@ -4,8 +4,8 @@ const core = require('@actions/core');
 
 const version = process.argv[2];
 
-const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'x86', 'armsr', 'rockchip'];
-const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', '64', 'generic', 'armv8'];
+const SNAPSHOT_TARGETS_TO_BUILD = ['mediatek', 'ramips', 'armsr', 'rockchip'];
+const SNAPSHOT_SUBTARGETS_TO_BUILD = ['filogic', 'mt7622', 'mt7623', 'mt7629', 'mt7620', 'mt7621', 'mt76x8', 'armv8'];
 
 if (!version || version !== 'SNAPSHOT') {
   core.setFailed('Only "SNAPSHOT" version is supported');
