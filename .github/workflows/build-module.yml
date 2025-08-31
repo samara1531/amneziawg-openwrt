@@ -36,8 +36,7 @@ jobs:
           fi
 
       - name: Install dependencies
-        run: npm audit fix
-             npm install
+        run: npm install
 
       - name: Generate Job Config
         id: generate-config
