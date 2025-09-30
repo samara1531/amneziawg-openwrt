@@ -1,8 +1,6 @@
-[AmneziaWG 2.0](https://github.com/samara1531/awg2))
+[AmneziaWG 2.0](https://github.com/samara1531/awg2)
 --------
 
-
-AmneziaWG for → [ImmortalWrt](https://github.com/samara15321/amneziawg-immortalwrt/releases)
 --------------------------
 Source Code [AmneziaVPN/WG for OpenWrt](https://github.com/amnezia-vpn/amneziawg-openwrt)
 
