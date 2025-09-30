@@ -1,6 +1,6 @@
 [AmneziaWG 2.0](https://github.com/samara1531/awg2)
 --------
-
+Ввиду неактуальности дальнейшая сборка версии 1.0 остановлена.
 --------------------------
 Source Code [AmneziaVPN/WG for OpenWrt](https://github.com/amnezia-vpn/amneziawg-openwrt)
 
